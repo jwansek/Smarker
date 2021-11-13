@@ -1,0 +1,24 @@
+files:
+    - pjtool.py:
+        classes:
+            - Date:
+                methods:
+                    - __init__(4)
+                    - __str__(1)
+                    - __eq__(2)
+                    - __lt__(2)
+                    - numYears(2)
+                    - numMonths(2)
+        tests:
+            - |
+              d1 = Date(2001, 8, 12)
+              d2 = Date(2001, 8, 12)
+              return d1 == d2
+    - tester.py:
+        functions:
+            - dateTester(2)
+    - turbine.py:
+        classes:
+            - Turbine:
+                attributes:
+                    - rating:int
