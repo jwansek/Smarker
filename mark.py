@@ -1,6 +1,8 @@
+import reportWriter
 import argparse
 import tempfile
 import zipfile
+import reflect
 import yaml
 import os
 
@@ -10,11 +12,47 @@ def main(assessment_path, submission_path, student_no):
     with open(assessment_path, "r") as f:
         assessment_struct = yaml.safe_load(f)
 
-    print(assessment_struct)
-
-    for required_file in assessment_struct["files"]:
+    reflection = reflect.Reflect(submission_path)
+    present_module_names = [i.name for i in reflection.client_modules]
+    writer = reportWriter.MarkDownReportWriter(student_no)
+    
+    for i, required_file in enumerate(assessment_struct["files"], 0):
         required_file = list(required_file.keys())[0]
-        print(required_file, required_file in os.listdir(submission_path))
+        module_name = os.path.splitext(required_file)[0]
+
+        if module_name not in present_module_names:
+            writer.append_module(module_name, False)
+            continue
+        
+        reflection.import_module(module_name)
+        writer.append_module(module_name, True, reflection.get_module_doc(module_name))
+
+        this_files_features = assessment_struct["files"][i][required_file]
+        if "classes" in this_files_features.keys():
+
+            present_classes = reflection.get_classes(module_name)
+            for j, class_name in enumerate(this_files_features["classes"], 0):
+                class_name = list(class_name.keys())[0]
+                
+                if class_name not in present_classes.keys():
+                    writer.append_class(class_name, False)
+                    continue
+
+                writer.append_class(class_name, True, present_classes[class_name][1])
+
+                present_methods = reflection.get_class_methods(module_name, class_name)
+                print(present_methods)
+                for required_method in this_files_features["classes"][j][class_name]["methods"]:
+                    print(required_method)
+
+    # print(submission_path)
+    # reflection = reflect.Reflect(submission_path)
+    # # reflection.import_module("pjtool")
+    # # print(reflection.get_classes("pjtool"))
+    # # print(reflection.get_class_methods("pjtool", "Date")["__eq__"])
+    # reflection.import_module("tester")
+    # print(reflection.get_functions("tester"))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
