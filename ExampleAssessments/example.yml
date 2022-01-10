@@ -1,0 +1,16 @@
+files:
+    - example.py:
+        classes:
+            - Application:
+                methods:
+                    - __init__(3)
+                    - a_method_with_defaults(3)
+                    - add(3)
+                    - aMethodThatIsntThere(1)
+        functions:
+            - hello_world(2)
+            - an_undocumented_function(0)
+            - aFunctionThatIsntThere(2)
+    - aFileThatIsntThere.py:
+        functions:
+            - hello_world(2)

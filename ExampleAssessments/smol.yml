@@ -10,6 +10,7 @@ files:
                     - numYears(2)
                     - numMonths(2)
             - AnotherClass:
+                methods:
                     - floofleBerries(2)
         tests:
             - |
