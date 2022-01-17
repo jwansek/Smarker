@@ -76,7 +76,8 @@ class Reflect:
             i[0]: (
                 i[1], 
                 {"comments": inspect.getcomments(i[1]), "doc": inspect.getdoc(i[1])}, 
-                str(inspect.signature(i[1]))
+                str(inspect.signature(i[1])),
+                inspect.getsource(i[1]) 
             )
             for i in inspect.getmembers(
                 self.get_classes(module_name)[class_name][0], 
@@ -89,7 +90,8 @@ class Reflect:
             i[0]: (
                 i[1], 
                 {"comments": inspect.getcomments(i[1]), "doc": inspect.getdoc(i[1])}, 
-                str(inspect.signature(i[1])) 
+                str(inspect.signature(i[1])),
+                inspect.getsource(i[1]) 
             )
             for i in inspect.getmembers(self.imported_modules[module_name]) 
             if inspect.isfunction(i[1])
@@ -140,6 +142,10 @@ class Reflect:
 
         # return inspect.getclasstree(classes)
         return tree
+
+    def get_source_code(self, file_, line_start, line_end):
+        with open(file=file_, mode="r") as f:
+            return f.readlines()[line_start:line_end]
 
 def gen_reflection_report(client_code_path, assessment_struct):
     reflection = Reflect(client_code_path)
@@ -195,8 +201,10 @@ def gen_reflection_report(client_code_path, assessment_struct):
                         out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["present"] = False
                         continue
 
-                    out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["arguments"] = present_methods[method_name][-1]
-                    out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["documentation"] = present_methods[method_name][-2]
+                    out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["arguments"] = present_methods[method_name][-2]
+                    out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["minimum_arguments"] = present_methods[method_name][-2].count(",") + 1
+                    out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["documentation"] = present_methods[method_name][-3]
+                    out["files"][i][required_file]["classes"][j][class_name]["methods"][k][required_method]["source_code"] =  present_methods[method_name][-1]
 
         if "functions" in required_files_features.keys():
             present_functions = reflection.get_functions(module_name)
@@ -210,8 +218,10 @@ def gen_reflection_report(client_code_path, assessment_struct):
                     out["files"][i][required_file]["functions"][j][required_function]["present"] = False
                     continue
 
-                out["files"][i][required_file]["functions"][j][required_function]["documentation"] = present_functions[function_name][-2]    
-                out["files"][i][required_file]["functions"][j][required_function]["arguments"] = present_functions[function_name][-1]    
+                out["files"][i][required_file]["functions"][j][required_function]["documentation"] = present_functions[function_name][-3]    
+                out["files"][i][required_file]["functions"][j][required_function]["arguments"] = present_functions[function_name][-2]    
+                out["files"][i][required_file]["functions"][j][required_function]["minimum_arguments"] = present_functions[function_name][-2].count(",") + 1    
+                out["files"][i][required_file]["functions"][j][required_function]["source_code"] = present_functions[function_name][-2]
 
     out["class_tree"] = reflection.get_class_tree()
     return out
@@ -221,5 +231,7 @@ if __name__ == "__main__":
     
     reflect = Reflect(user_code_path)
     reflect.import_module("pjtool")
-    for c, v in reflect.get_classes(("pjtool")).items():
-        print(c, v)
+    # for c, v in reflect.get_classes(("pjtool")).items():
+    #     print(c, v)
+    for k, v in reflect.get_functions("pjtool").items():
+        print(k, v)
