@@ -1,3 +1,6 @@
+# Eden Attenborough
+# 12-01-21
+
 import tkinter as tk
 
 class Application(tk.Tk):
@@ -8,7 +11,7 @@ class Application(tk.Tk):
 
         self.title("Hello World!")
 
-    def a_method_with_defaults(self, arg_1 = "hello", arg_2 = "world"):
+    def a_method_with_defaults(self, n:str, arg_1 = "hello", arg_2 = "world", count:int = 3):
         """Adds two strings together with a space between them.
 
         Args:
@@ -32,6 +35,7 @@ class Application(tk.Tk):
         """
         return num1 + num2
 
+# hello world!
 def hello_world(times):
     """Prints 'hello world!' to stdout. Prints it out `times` times.
 
@@ -45,6 +49,11 @@ def hello_world(times):
 
 def an_undocumented_function():
     return 3.14156
+
+# kwonlyargs demo
+def greet(*names, greeting="Hello"):
+    for name in names:
+        print(greeting, name)
 
 if __name__ == "__main__":
     app = Application()

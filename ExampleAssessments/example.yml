@@ -11,6 +11,12 @@ files:
             - hello_world(2)
             - an_undocumented_function(0)
             - aFunctionThatIsntThere(2)
+            - greet(2)
     - aFileThatIsntThere.py:
         functions:
             - hello_world(2)
+    - animals.py:
+        classes:
+            - Dog:
+            - Cat:
+            - Kitten:
