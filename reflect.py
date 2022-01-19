@@ -1,9 +1,13 @@
+import xml.etree.ElementTree as etree
 from dataclasses import dataclass
 from functools import reduce
 from operator import getitem
+import subprocess
 import importlib
+import tempfile
 import inspect
 import pkgutil
+import shutil
 import sys
 import os
 import re
@@ -17,6 +21,7 @@ class Reflect:
         self.client_code_path = os.path.normpath(self.client_code_path)
         sys.path.insert(1, self.client_code_path)
         self.client_modules = [p for p in pkgutil.iter_modules() if os.path.normpath(str(p[0])[12:-2]) == self.client_code_path]
+        # print("client moduules ", self.client_modules)
 
     def import_module(self, module_name):
         """Imports a module. Before reflection can be conducted, a module
@@ -98,6 +103,15 @@ class Reflect:
         }
 
     def get_class_full_name(self, class_):
+        """Returns the name of a class object as a nice string. e.g. modulename.classname
+        except if it's a builtin there'll be no module name.
+
+        Args:
+            class_ (class): A class to get the name of
+
+        Returns:
+            str: A nicely formatted class name.
+        """
         if class_.__module__ in ['builtins', 'exceptions']:
             return class_.__name__
         return "%s.%s" % (class_.__module__, class_.__name__)
@@ -143,14 +157,48 @@ class Reflect:
         # return inspect.getclasstree(classes)
         return tree
 
-    def get_source_code(self, file_, line_start, line_end):
-        with open(file=file_, mode="r") as f:
-            return f.readlines()[line_start:line_end]
+    def run_tests(self, tests, run_colourful = False):
+        test_results = {}
+        test_results["pytest_report"] = ""
+        for filename, filestests in tests.items():
+            with open(os.path.join(self.client_code_path, "test_" + filename), "a") as f:
+                for m in self.client_modules:
+                    f.write("import %s\n" % m.name)
+                f.write("\n")
 
-def gen_reflection_report(client_code_path, assessment_struct):
+                for i, test_code in enumerate(filestests, 1):
+                    f.write("def test_%d():\n" % i)
+                    for line in test_code.split("\n"):
+                        f.write("    %s\n" % line.rstrip())
+                    f.write("\n")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            junitxmlpath = os.path.join(tmp, "report.xml")
+            cmd = ["pytest", "-v"] + [os.path.join(self.client_code_path, "test_%s" % f) for f in tests.keys()] + ["--junitxml=%s" % junitxmlpath]
+            #print(" ".join(cmd))
+            proc = subprocess.Popen(cmd, stdout = subprocess.PIPE)
+            while True:
+                line = proc.stdout.readline()
+                if not line:
+                    break
+                test_results["pytest_report"] += line.decode()
+
+            with open(junitxmlpath, "r") as f:
+                test_results["junitxml"] = f.read()
+        root = etree.fromstring(test_results["junitxml"])
+        test_results["meta"] = root.findall("./testsuite")[0].attrib
+
+        if run_colourful:
+            subprocess.run(cmd)
+
+        return test_results
+            
+def gen_reflection_report(client_code_path, assessment_struct, configuration):
+    print(configuration)
     reflection = Reflect(client_code_path)
     present_module_names = [i.name for i in reflection.client_modules]
     out = assessment_struct
+    tests_to_run = {}
 
     for i, required_file in enumerate(assessment_struct["files"], 0):
         required_file = list(required_file.keys())[0]
@@ -223,8 +271,17 @@ def gen_reflection_report(client_code_path, assessment_struct):
                 out["files"][i][required_file]["functions"][j][required_function]["minimum_arguments"] = present_functions[function_name][-2].count(",") + 1    
                 out["files"][i][required_file]["functions"][j][required_function]["source_code"] = present_functions[function_name][-2]
 
+        if "tests" in required_files_features.keys():
+            filename = list(assessment_struct["files"][i].keys())[0]
+            for j, test in enumerate(assessment_struct["files"][i][required_file]["tests"], 0):
+                try:
+                    tests_to_run[filename].append(test)
+                except KeyError:
+                    tests_to_run[filename] = [test]
+
+    out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout")
     out["class_tree"] = reflection.get_class_tree()
-    return out
+    # return out
 
 if __name__ == "__main__":
     user_code_path = "D:\\Edencloud\\UniStuff\\3.0 - CMP 3rd Year Project\\Smarker\\../ExampleSubmissions/Submission_A"

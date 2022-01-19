@@ -2,6 +2,7 @@
 # 12-01-21
 
 import tkinter as tk
+from dataclasses import dataclass
 
 class Application(tk.Tk):
     """An example class, which implements a GUI by inheriting from tkinter.Tk
@@ -34,6 +35,19 @@ class Application(tk.Tk):
             int: The two numbers added together
         """
         return num1 + num2
+
+@dataclass
+class MyDate:
+    year:int
+    month:int
+    day:int
+
+    def __eq__(self, otherDate):
+        return self.year == otherDate.year and self.month == otherDate.month and self.day == otherDate.day
+
+    def __str__(self):
+        "%d-%d-%4d" % (self.day, self.month, self.year)
+    
 
 # hello world!
 def hello_world(times):

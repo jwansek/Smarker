@@ -1,3 +1,4 @@
+assessment_name: CMP-4009B
 files:
     - pjtool.py:
         classes:
@@ -11,18 +12,15 @@ files:
                     - numMonths(2)
         tests:
             - |
-              d1 = Date(2001, 8, 12)
-              d2 = Date(2001, 8, 12)
-              return d1 == d2
+                d1 = pjtool.Date(2001, 8, 12)
+                d2 = pjtool.Date(2001, 8, 12)
+                assert d1 == d2
+            - |
+                d1 = pjtool.Date(2001, 8, 12)
+                d2 = pjtool.Date(1999, 4, 5)
+                assert d1 != d2
     - tester.py:
         functions:
             - dateTester(2)
-        printIfExecuted: False
-    - turbine.py:
-        classes:
-            - Turbine:
-                attributes:
-                    - rating:int
-    - aNonExistantModule.py:
-        functions:
-            - aNonExistantFunction(1)
+dependencies:
+    - matplotlib

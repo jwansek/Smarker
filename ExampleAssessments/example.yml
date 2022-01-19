@@ -12,6 +12,15 @@ files:
             - an_undocumented_function(0)
             - aFunctionThatIsntThere(2)
             - greet(2)
+        tests:
+            - |
+                dateOne = example.MyDate(day = 12, month = 8, year = 2001)
+                dateTwo = example.MyDate(day = 12, month = 8, year = 2001)
+                assert dateOne == dateTwo
+            - |
+                dateOne = example.MyDate(day = 12, month = 8, year = 2001)
+                dateTwo = example.MyDate(day = 5, month = 4, year = 1999)
+                assert dateOne == dateTwo
     - aFileThatIsntThere.py:
         functions:
             - hello_world(2)
@@ -20,3 +29,10 @@ files:
             - Dog:
             - Cat:
             - Kitten:
+        tests:
+            - |
+                nibbles = animals.Kitten()
+                assert nibbles.speak() == "nyaa~~"
+            - |
+                milton = animals.Dog()
+                assert milton.move() == "*moves*"

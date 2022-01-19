@@ -25,7 +25,7 @@ def main(**kwargs):
         with open(kwargs["assessment"], "r") as f:
             assessment_struct = yaml.safe_load(f)
 
-        output = reflect.gen_reflection_report(submission_files, assessment_struct)
+        output = reflect.gen_reflection_report(submission_files, assessment_struct, kwargs)
         output_file = kwargs["out"]
         if kwargs["format"] == "yaml":
             strout = yaml.dump(output)
@@ -34,6 +34,7 @@ def main(**kwargs):
 
         if output_file == "stdout":
             print(strout)
+            # input("\n\n[tempdir: %s] Press any key to close..." % tempdir)
             exit()
 
         if output_file == "auto":
@@ -41,6 +42,8 @@ def main(**kwargs):
 
         with open(output_file, "w") as f:
             f.write(strout)
+
+        # input("\n\n[tempdir: %s] Press any key to close..." % tempdir)
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
