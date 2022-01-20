@@ -158,6 +158,23 @@ class Reflect:
         return tree
 
     def run_tests(self, tests, run_colourful = False):
+        """Build and run pytests from the configuration yaml. Indentation needs to 
+        be four spaces only otherwise it won't work. We recommend running this last
+        so all modules are already imported.
+
+        Args:
+            tests (dict): dict with the filename as the key followed by a list of 
+            python code to make the test
+            run_colourful (bool, optional): Run pytest again, printing out the 
+            exact output of pytest as soon as it's ready. Has the advantage that 
+            colours are preserved, but is only useful for when the user wants to 
+            print out the report to stdout. Defaults to False.
+
+        Returns:
+            [dict]: A dictionary consisting of the pytest output string, junit xml
+            output (which might be useful for rendering nicely in some output formats)
+            and some nice meta information.
+        """
         test_results = {}
         test_results["pytest_report"] = ""
         for filename, filestests in tests.items():
@@ -194,7 +211,7 @@ class Reflect:
         return test_results
             
 def gen_reflection_report(client_code_path, assessment_struct, configuration):
-    print(configuration)
+    # print(configuration)
     reflection = Reflect(client_code_path)
     present_module_names = [i.name for i in reflection.client_modules]
     out = assessment_struct
@@ -281,7 +298,7 @@ def gen_reflection_report(client_code_path, assessment_struct, configuration):
 
     out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout")
     out["class_tree"] = reflection.get_class_tree()
-    # return out
+    return out
 
 if __name__ == "__main__":
     user_code_path = "D:\\Edencloud\\UniStuff\\3.0 - CMP 3rd Year Project\\Smarker\\../ExampleSubmissions/Submission_A"
