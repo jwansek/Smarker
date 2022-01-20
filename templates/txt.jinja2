@@ -1,0 +1,29 @@
+=== {{ name }} - Student ID: {{ student_no }} Automatic marking report ===
+
+== Class Tree: ==
+
+{{ recurse_class_tree_text(class_tree) }}
+
+== File Analysis ==
+{%- set flat_files = flatten_struct(files) %}
+{% for filename, files_contents in flat_files.items() %}
+    = {{ filename + " =" -}}
+    {%- if files_contents["present"] -%}
+    {% if "classes" in files_contents.keys() %}
+        Classes:
+        {%- set flat_classes = flatten_struct(files_contents["classes"]) -%}
+        {% for class_name, class_contents in flat_classes.items() %}
+            {{ class_name }}
+        {%- endfor -%}
+    {%- endif -%}
+    {% if "functions" in files_contents.keys() %}
+        Functions:
+        {%- set flat_functions = flatten_struct(files_contents["functions"]) -%}
+        {% for function_name, function_contents in flat_functions.items() %}
+            {{ function_name }}
+        {%- endfor -%}
+    {%- endif -%}
+    {% else %}
+        *** File not present ***
+    {% endif %}
+{% endfor %}

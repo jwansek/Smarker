@@ -1,4 +1,5 @@
-*_report.md
+*_report.*
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

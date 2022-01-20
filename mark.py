@@ -1,8 +1,10 @@
+import jinja_helpers
 import configparser
 import argparse
 import tempfile
 import zipfile
 import reflect
+import jinja2
 import yaml
 import json
 import os
@@ -25,12 +27,18 @@ def main(**kwargs):
         with open(kwargs["assessment"], "r") as f:
             assessment_struct = yaml.safe_load(f)
 
-        output = reflect.gen_reflection_report(submission_files, assessment_struct, kwargs)
+        output = reflect.gen_reflection_report(submission_files, assessment_struct, student_no, kwargs)
         output_file = kwargs["out"]
+        
         if kwargs["format"] == "yaml":
             strout = yaml.dump(output)
         elif kwargs["format"] == "json":
             strout = json.dumps(output, indent = 4)
+        else:
+            with open(os.path.join("templates", "%s.jinja2" % kwargs["format"]), "r") as f:
+                jinja_template = jinja2.Template(f.read())
+
+            strout = jinja_template.render(**output, **jinja_helpers._get_helpers())
 
         if output_file == "stdout":
             print(strout)
@@ -66,8 +74,8 @@ if __name__ == "__main__":
         "-f", "--format",
         help = "Output format type",
         type = str,
-        choices = ["yaml", "json"],
-        required = True
+        choices = ["yaml", "json"] + [os.path.splitext(f)[0] for f in os.listdir("templates")],
+        default = "txt"
     )
     parser.add_argument(
         "-o", "--out",

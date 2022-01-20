@@ -34,7 +34,12 @@ class Reflect:
         """
         for module in self.client_modules:
             if module.name == module_name:
-                self.imported_modules[module_name] = importlib.import_module(module.name)
+                try:
+                    self.imported_modules[module_name] = importlib.import_module(module.name)
+                except ModuleNotFoundError as e:
+                    print("Missing library dependency for client module:")
+                    print(e)
+                    exit()
 
     def get_module_doc(self, module_name):
         """Gets the documentation provided for a module.
@@ -210,11 +215,12 @@ class Reflect:
 
         return test_results
             
-def gen_reflection_report(client_code_path, assessment_struct, configuration):
+def gen_reflection_report(client_code_path, assessment_struct, student_no, configuration):
     # print(configuration)
     reflection = Reflect(client_code_path)
     present_module_names = [i.name for i in reflection.client_modules]
     out = assessment_struct
+    out["student_no"] = student_no
     tests_to_run = {}
 
     for i, required_file in enumerate(assessment_struct["files"], 0):
@@ -301,11 +307,16 @@ def gen_reflection_report(client_code_path, assessment_struct, configuration):
     return out
 
 if __name__ == "__main__":
-    user_code_path = "D:\\Edencloud\\UniStuff\\3.0 - CMP 3rd Year Project\\Smarker\\../ExampleSubmissions/Submission_A"
+    # user_code_path = "D:\\Edencloud\\UniStuff\\3.0 - CMP 3rd Year Project\\Smarker\\../ExampleSubmissions/Submission_A"
     
-    reflect = Reflect(user_code_path)
-    reflect.import_module("pjtool")
-    # for c, v in reflect.get_classes(("pjtool")).items():
-    #     print(c, v)
-    for k, v in reflect.get_functions("pjtool").items():
-        print(k, v)
+    # reflect = Reflect(user_code_path)
+    # reflect.import_module("pjtool")
+    # # for c, v in reflect.get_classes(("pjtool")).items():
+    # #     print(c, v)
+    # for k, v in reflect.get_functions("pjtool").items():
+    #     print(k, v)
+
+    reflect = Reflect(os.getcwd())
+    print(reflect.client_modules)
+    reflect.import_module("jinja_helpers")
+    print({k: v[0] for k, v in reflect.get_functions("jinja_helpers").items()})
