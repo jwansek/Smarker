@@ -51,8 +51,8 @@ class Reflect:
             str: Provided documentation
         """
         return {
-            "comments": inspect.getcomments(self.imported_modules[module_name]), 
-            "doc": inspect.getdoc(self.imported_modules[module_name])
+            "comments": self.__format_doc(inspect.getcomments(self.imported_modules[module_name])), 
+            "doc": self.__format_doc(inspect.getdoc(self.imported_modules[module_name]))
         }
 
     def get_classes(self, module_name):
@@ -66,7 +66,7 @@ class Reflect:
             a tuple containing the class object and the classes' documentation.
         """
         return {
-            i[0]: (i[1], {"comments": inspect.getcomments(i[1]), "doc": inspect.getdoc(i[1])}) 
+            i[0]: (i[1], {"comments": self.__format_doc(inspect.getcomments(i[1])), "doc": self.__format_doc(inspect.getdoc(i[1]))}) 
             for i in inspect.getmembers(self.imported_modules[module_name]) 
             if inspect.isclass(i[1]) and self.get_class_full_name(i[1]).split(".")[0] in self.imported_modules.keys()
         }
@@ -85,9 +85,9 @@ class Reflect:
         return {
             i[0]: (
                 i[1], 
-                {"comments": inspect.getcomments(i[1]), "doc": inspect.getdoc(i[1])}, 
+                {"comments": self.__format_doc(inspect.getcomments(i[1])), "doc": self.__format_doc(inspect.getdoc(i[1]))}, 
                 str(inspect.signature(i[1])),
-                inspect.getsource(i[1]) 
+                inspect.getsource(i[1]).rstrip()
             )
             for i in inspect.getmembers(
                 self.get_classes(module_name)[class_name][0], 
@@ -99,9 +99,9 @@ class Reflect:
         return {
             i[0]: (
                 i[1], 
-                {"comments": inspect.getcomments(i[1]), "doc": inspect.getdoc(i[1])}, 
+                {"comments": self.__format_doc(inspect.getcomments(i[1])), "doc": self.__format_doc(inspect.getdoc(i[1]))}, 
                 str(inspect.signature(i[1])),
-                inspect.getsource(i[1]) 
+                inspect.getsource(i[1]).rstrip() 
             )
             for i in inspect.getmembers(self.imported_modules[module_name]) 
             if inspect.isfunction(i[1])
@@ -214,6 +214,9 @@ class Reflect:
             subprocess.run(cmd)
 
         return test_results
+
+    def __format_doc(*doc):
+        return str(doc[1]).rstrip()
             
 def gen_reflection_report(client_code_path, assessment_struct, student_no, configuration):
     # print(configuration)
@@ -292,7 +295,7 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
                 out["files"][i][required_file]["functions"][j][required_function]["documentation"] = present_functions[function_name][-3]    
                 out["files"][i][required_file]["functions"][j][required_function]["arguments"] = present_functions[function_name][-2]    
                 out["files"][i][required_file]["functions"][j][required_function]["minimum_arguments"] = present_functions[function_name][-2].count(",") + 1    
-                out["files"][i][required_file]["functions"][j][required_function]["source_code"] = present_functions[function_name][-2]
+                out["files"][i][required_file]["functions"][j][required_function]["source_code"] = present_functions[function_name][-1]
 
         if "tests" in required_files_features.keys():
             filename = list(assessment_struct["files"][i].keys())[0]
@@ -319,4 +322,4 @@ if __name__ == "__main__":
     reflect = Reflect(os.getcwd())
     print(reflect.client_modules)
     reflect.import_module("jinja_helpers")
-    print({k: v[0] for k, v in reflect.get_functions("jinja_helpers").items()})
+    print({k: v for k, v in reflect.get_functions("jinja_helpers").items()})

@@ -18,12 +18,51 @@
     {%- endif -%}
     {% if "functions" in files_contents.keys() %}
         Functions:
-        {%- set flat_functions = flatten_struct(files_contents["functions"]) -%}
-        {% for function_name, function_contents in flat_functions.items() %}
-            {{ function_name }}
+        {%- set flat_functions = flatten_struct(files_contents["functions"]) %}
+        {%- for function_name, function_contents in flat_functions.items() %}
+            {{ function_name + ":" }}
+            {%- if function_contents["present"] %}
+                Arguments:
+                    {{ function_contents["arguments"] }}
+                    Enough? {{ bool_to_yesno(function_contents["minimum_arguments"] >= get_required_num_args(function_name)) }}
+                Documentation:
+                    {{ len_documentation(function_contents["documentation"]["comments"], function_contents["documentation"]["doc"]) }} characters long
+                    {%- if txt_show_full_docs == "True" %}
+                    Comments:
+                        {%- if function_contents["documentation"]["comments"] == "None" %}
+                        *** No comments present ***
+                        {%- else %}
+```
+{{ function_contents["documentation"]["comments"] }}
+```
+                        {%- endif %}
+                    Docstring:
+                        {%- if function_contents["documentation"]["doc"] == "None" %}
+                        *** No docstring present ***
+                        {%- else %}
+```
+{{ function_contents["documentation"]["doc"] }}
+```
+                        {%- endif -%}
+                    {%- endif %}
+                    Source:
+                        {{ get_source_numlines(function_contents["source_code"]) }}
+                        {%- if txt_show_source == "True" %}
+                        Code:
+```
+{{ function_contents["source_code"] }}
+```
+                        {%- endif %}
+            {%- else %}
+                *** Function not present ***
+            {%- endif %}
         {%- endfor -%}
     {%- endif -%}
     {% else %}
         *** File not present ***
     {% endif %}
 {% endfor %}
+
+{% if out != "stdout" -%}
+{{ test_results["pytest_report"] }}
+{%- endif -%}

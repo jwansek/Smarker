@@ -38,7 +38,7 @@ def main(**kwargs):
             with open(os.path.join("templates", "%s.jinja2" % kwargs["format"]), "r") as f:
                 jinja_template = jinja2.Template(f.read())
 
-            strout = jinja_template.render(**output, **jinja_helpers._get_helpers())
+            strout = jinja_template.render(**output, **jinja_helpers._get_helpers(), **kwargs)
 
         if output_file == "stdout":
             print(strout)
