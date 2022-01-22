@@ -27,14 +27,21 @@ class FileDependencies:
             pass
 
     def __exit__(self, type, value, traceback):
+        stuff_to_remove = []
         try:
-            for file_dep in self.assessment_struct["dependencies"]["files"]:
-                if os.path.isfile(os.path.split(file_dep)[-1]):
-                    os.remove(os.path.split(file_dep)[-1])
-                else:
-                    shutil.rmtree(os.path.split(file_dep)[-1])
+            stuff_to_remove += [os.path.split(f)[-1] for f in self.assessment_struct["dependencies"]["files"]]
         except KeyError:
             pass
+        try:
+            stuff_to_remove += self.assessment_struct["produced_files"]
+        except KeyError:
+            pass
+
+        for file_dep in stuff_to_remove:
+            if os.path.isfile(file_dep):
+                os.remove(file_dep)
+            else:
+                shutil.rmtree(file_dep)
 
 def main(**kwargs):
     student_no = os.path.splitext(os.path.split(args["submission"])[-1])[0]

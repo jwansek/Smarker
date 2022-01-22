@@ -57,6 +57,9 @@ files:
                     - serviceDue(2)
                     - serviceAt(2)
                     - powerAt(2)
+produced_files:
+    - pdLine.png
+    - pdResult.txt
 dependencies:
     libraries:
         - matplotlib
