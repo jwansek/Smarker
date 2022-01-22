@@ -57,4 +57,8 @@ files:
                     - serviceDue(2)
                     - serviceAt(2)
                     - powerAt(2)
-                
+dependencies:
+    libraries:
+        - matplotlib
+    files:
+        - ../wsData.txt  

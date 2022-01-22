@@ -9,6 +9,18 @@
 {% for filename, files_contents in flat_files.items() %}
     = {{ filename + " =" -}}
     {%- if files_contents["present"] -%}
+    {%- if files_contents["has_exception"] %}
+        *** File cannot be run - has compile time exception ***
+        Please note that this file cannot be analysed or have tests preformed upon it
+        Exception Type:
+            {{ files_contents["exception"]["type"] }}
+        Exception String:
+            {{ files_contents["exception"]["str"] }}
+        Full Traceback:
+```
+{{ files_contents["exception"]["traceback"] }}
+```
+    {%- else -%}
     {% if "classes" in files_contents.keys() %}
         Classes:
         {%- set flat_classes = flatten_struct(files_contents["classes"]) -%}
@@ -57,6 +69,7 @@
                 *** Function not present ***
             {%- endif %}
         {%- endfor -%}
+    {%- endif -%}
     {%- endif -%}
     {% else %}
         *** File not present ***

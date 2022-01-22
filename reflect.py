@@ -4,6 +4,7 @@ from functools import reduce
 from operator import getitem
 import subprocess
 import importlib
+import traceback
 import tempfile
 import inspect
 import pkgutil
@@ -40,6 +41,9 @@ class Reflect:
                     print("Missing library dependency for client module:")
                     print(e)
                     exit()
+                # except Exception as e:
+                #     print("CRITICAL ERROR IN CLIENT CODE - CANNOT CONTINUE")
+                #     raise ClientCodeException(e)
 
     def get_module_doc(self, module_name):
         """Gets the documentation provided for a module.
@@ -196,8 +200,11 @@ class Reflect:
 
         with tempfile.TemporaryDirectory() as tmp:
             junitxmlpath = os.path.join(tmp, "report.xml")
-            cmd = ["pytest", "-v"] + [os.path.join(self.client_code_path, "test_%s" % f) for f in tests.keys()] + ["--junitxml=%s" % junitxmlpath]
-            #print(" ".join(cmd))
+            test_files = [os.path.join(self.client_code_path, "test_%s" % f) for f in tests.keys()]
+            cmd = ["pytest", "-v"] + test_files + ["--junitxml=%s" % junitxmlpath]
+            if test_files == []:
+                test_results["pytest_report"] = "*** No Tests ***"
+                return test_results
             proc = subprocess.Popen(cmd, stdout = subprocess.PIPE)
             while True:
                 line = proc.stdout.readline()
@@ -236,8 +243,20 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
             out["files"][i][required_file]["present"] = False
             continue
 
-        reflection.import_module(module_name)
+        try:
+            reflection.import_module(module_name)
+        except Exception as e:
+            out["files"][i][required_file]["has_exception"] = True
+            out["files"][i][required_file]["exception"] = {}
+            out["files"][i][required_file]["exception"]["type"] = str(type(e))
+            out["files"][i][required_file]["exception"]["str"] = str(e)
+            # TODO: work out how to only get the exception stack of the client code
+            out["files"][i][required_file]["exception"]["traceback"] = ''.join(traceback.format_exception(None, e, e.__traceback__))
+
+            continue
+
         required_files_features = assessment_struct["files"][i][required_file]
+        out["files"][i][required_file]["has_exception"] = False
         out["files"][i][required_file]["documentation"] = reflection.get_module_doc(module_name)
         if "classes" in required_files_features.keys():
 

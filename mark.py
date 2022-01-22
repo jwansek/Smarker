@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import jinja_helpers
 import configparser
 import argparse
@@ -5,9 +6,35 @@ import tempfile
 import zipfile
 import reflect
 import jinja2
+import shutil
 import yaml
 import json
 import os
+
+@dataclass
+class FileDependencies:
+    assessment_struct:dict
+
+    def __enter__(self):
+        try:
+            for file_dep in self.assessment_struct["dependencies"]["files"]:
+                if os.path.isfile(file_dep):
+                    shutil.copy(file_dep, os.path.split(file_dep)[-1])
+                else:
+                    shutil.copytree(file_dep, os.path.split(file_dep)[-1])
+                # print("%s --> %s" % (file_dep, os.path.join(os.getcwd(), os.path.split(file_dep)[-1])))
+        except KeyError:
+            pass
+
+    def __exit__(self, type, value, traceback):
+        try:
+            for file_dep in self.assessment_struct["dependencies"]["files"]:
+                if os.path.isfile(os.path.split(file_dep)[-1]):
+                    os.remove(os.path.split(file_dep)[-1])
+                else:
+                    shutil.rmtree(os.path.split(file_dep)[-1])
+        except KeyError:
+            pass
 
 def main(**kwargs):
     student_no = os.path.splitext(os.path.split(args["submission"])[-1])[0]
@@ -27,7 +54,8 @@ def main(**kwargs):
         with open(kwargs["assessment"], "r") as f:
             assessment_struct = yaml.safe_load(f)
 
-        output = reflect.gen_reflection_report(submission_files, assessment_struct, student_no, kwargs)
+        with FileDependencies(assessment_struct):
+            output = reflect.gen_reflection_report(submission_files, assessment_struct, student_no, kwargs)
         output_file = kwargs["out"]
         
         if kwargs["format"] == "yaml":

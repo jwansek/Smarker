@@ -37,3 +37,7 @@ files:
             - |
                 milton = animals.Dog()
                 assert milton.move() == "*moves*"
+dependencies:
+    files:
+        - ../wsData.txt
+        - ../IncludeDirectory
