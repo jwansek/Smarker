@@ -38,10 +38,11 @@ class FileDependencies:
             pass
 
         for file_dep in stuff_to_remove:
-            if os.path.isfile(file_dep):
-                os.remove(file_dep)
-            else:
-                shutil.rmtree(file_dep)
+            if os.path.exists(file_dep):
+                if os.path.isfile(file_dep):
+                    os.remove(file_dep)
+                else:
+                    shutil.rmtree(file_dep)
 
 def main(**kwargs):
     student_no = os.path.splitext(os.path.split(args["submission"])[-1])[0]

@@ -20,3 +20,5 @@ class Kitten(Cat):
     """
     def speak(self):
         return "meow (but cuter)"
+
+print()

@@ -9,6 +9,7 @@ import tempfile
 import inspect
 import pkgutil
 import shutil
+import jinja2
 import sys
 import os
 import re
@@ -186,22 +187,23 @@ class Reflect:
         """
         test_results = {}
         test_results["pytest_report"] = ""
-        for filename, filestests in tests.items():
-            with open(os.path.join(self.client_code_path, "test_" + filename), "a") as f:
-                for m in self.client_modules:
-                    f.write("import %s\n" % m.name)
-                f.write("\n")
+        
+        with open("pytest_template.jinja2", "r") as f:
+            jinja_template = jinja2.Template(f.read())
 
-                for i, test_code in enumerate(filestests, 1):
-                    f.write("def test_%d():\n" % i)
-                    for line in test_code.split("\n"):
-                        f.write("    %s\n" % line.rstrip())
-                    f.write("\n")
+        for filename, filestests in tests.items():
+            with open(os.path.join(self.client_code_path, "test_" + filename), "w") as f:
+                f.write(jinja_template.render(
+                    module = os.path.splitext(filename)[0], 
+                    filestests = filestests, 
+                    enumerate = enumerate       # a function thats needed
+                ))
 
         with tempfile.TemporaryDirectory() as tmp:
             junitxmlpath = os.path.join(tmp, "report.xml")
             test_files = [os.path.join(self.client_code_path, "test_%s" % f) for f in tests.keys()]
             cmd = ["pytest", "-v"] + test_files + ["--junitxml=%s" % junitxmlpath]
+            # print("cmd: ", " ".join(cmd))
             if test_files == []:
                 test_results["pytest_report"] = "*** No Tests ***"
                 return test_results
@@ -318,13 +320,14 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
 
         if "tests" in required_files_features.keys():
             filename = list(assessment_struct["files"][i].keys())[0]
-            for j, test in enumerate(assessment_struct["files"][i][required_file]["tests"], 0):
-                try:
-                    tests_to_run[filename].append(test)
-                except KeyError:
-                    tests_to_run[filename] = [test]
+            if not out["files"][i][filename]["has_exception"]:
+                for j, test in enumerate(assessment_struct["files"][i][required_file]["tests"], 0):
+                    try:
+                        tests_to_run[filename].append(test)
+                    except KeyError:
+                        tests_to_run[filename] = [test]
 
-    out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout")
+    out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout" and configuration["format"] in ["text", "txt"])
     out["class_tree"] = reflection.get_class_tree()
     return out
 

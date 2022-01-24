@@ -11,7 +11,8 @@
     {%- if files_contents["present"] -%}
     {%- if files_contents["has_exception"] %}
         *** File cannot be run - has compile time exception ***
-        Please note that this file cannot be analysed or have tests preformed upon it
+        Please note that this file cannot be analysed or have tests preformed upon it-
+            this can lead to the whole test suite failing if another module imports this.
         Exception Type:
             {{ files_contents["exception"]["type"] }}
         Exception String:
