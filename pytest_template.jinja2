@@ -4,5 +4,5 @@ import {{ module }}
 
 {% for i, test_code in enumerate(filestests, 1) %}
 def test_{{ i }}():
-{{ test_code|indent(4, True) }}     {# the code in the config file must be indented with 4 spaces only #}
+    {{ test_code|indent(4, False) }}     {# the code in the config file must be indented with 4 spaces only #}
 {% endfor %}
