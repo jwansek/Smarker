@@ -1,0 +1,114 @@
+{%- macro expand_function(function_name, function_contents, x = "Function") -%}
+ - `{{ function_name }}`:
+{%- if function_contents["present"] %}
+    - **Arguments:** 
+        - `{{ function_contents["arguments"] }}` 
+        - {{ bool_to_checkbox(function_contents["minimum_arguments"] >= get_required_num_args(function_name)) }} Enough? 
+    - **Documentation**:
+        - {{ len_documentation(function_contents["documentation"]["comments"], function_contents["documentation"]["doc"]) }} characters long
+{%- if md_show_full_docs == "True" %}
+        - Comments:
+            {%- if function_contents["documentation"]["comments"] == "None" %}
+            - [ ] No comments present
+{%- else %}
+{{ code_block(function_contents["documentation"]["comments"])|indent(12, True) }}
+{%- endif %}
+        - Docstring:
+{%- if function_contents["documentation"]["doc"] == "None" %}
+            - [ ] No docstring present
+{%- else %}
+{{ code_block(function_contents["documentation"]["doc"])|indent(12, True) }}
+{%- endif -%}
+{%- endif %}
+     - **Source**:
+        - {{ get_source_numlines(function_contents["source_code"]) }}
+{%- if md_show_source == "True" %}
+        - Code:
+{{ code_block(function_contents["source_code"])|indent(12, True) }}
+{%- endif %}
+{%- else %}
+    - [ ] {{ x }} not present
+{%- endif %}
+{%- endmacro -%}
+
+{%- macro code_block(code) -%}
+```
+{{ code }}
+```
+{%- endmacro -%}
+
+# {{ name }} - Student ID: {{ student_no }} Automatic marking report 
+Report generated at {{ get_datetime() }}
+## Class Tree: 
+
+```
+{{ recurse_class_tree_text(class_tree) }}
+```
+
+## File Analysis
+
+{%- set flat_files = flatten_struct(files) %}
+{% for filename, files_contents in flat_files.items() %}
+### File `{{ filename }}`:
+{%- if files_contents["present"] -%}
+{%- if files_contents["has_exception"] %}
+*** File cannot be run - has compile time exception ***
+Please note that this file cannot be analysed or have tests preformed upon it- 
+    this can lead to the whole test suite failing if another module imports this.
+ - Exception Type: `{{ files_contents["exception"]["type"] }}`
+ - Exception String: `{{ files_contents["exception"]["str"] }}`
+ - Full Traceback:
+```
+{{ files_contents["exception"]["traceback"] }}
+```
+{%- else %}
+ - #### Documentation:
+    {%- set len_docs = len_documentation(files_contents["documentation"]["comments"], files_contents["documentation"]["doc"]) %}
+    - {{ len_docs }} characters long
+{%- if md_show_full_docs == "True" %}
+    - ##### Comments:
+{%- if files_contents["documentation"]["comments"] == "None" %}
+        - [ ] No comments present
+{%- else %}
+{{ code_block(files_contents["documentation"]["comments"])|indent(8, True) }}
+{%- endif %}
+    - ##### Docstring:
+{%- if files_contents["documentation"]["doc"] == "None" %}
+        - [ ] No docstring present
+{%- else %}
+{{ code_block(files_contents["documentation"]["doc"])|indent(8, True) }}
+{%- endif -%}
+{%- endif %}
+{%- if "classes" in files_contents.keys() %}
+    - #### Classes:
+{%- set flat_classes = flatten_struct(files_contents["classes"]) -%}
+{% for class_name, class_contents in flat_classes.items() %}
+        - ##### `{{ class_name}}`:
+{%- if "methods" in class_contents.keys() %}
+            - ###### Methods:
+{%- set flat_methods = flatten_struct(class_contents["methods"]) -%}
+{%- for method_name, method_contents in flat_methods.items() %}
+{{ expand_function(method_name, method_contents, "Method")|indent(16, True) }}
+{%- endfor -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endif -%}
+{% if "functions" in files_contents.keys() %}
+    - #### Functions:
+{%- set flat_functions = flatten_struct(files_contents["functions"]) %}
+{%- for function_name, function_contents in flat_functions.items() %}
+{{ expand_function(function_name, function_contents)|indent(8, True) }}
+{%- endfor -%}
+{%- endif -%}
+{%- endif -%}
+{% else %}
+ - [ ] File not present
+{% endif %}
+{% endfor %}
+
+{% if out != "stdout" and format != "html" -%}
+## Tests:
+```
+{{ test_results["pytest_report"].replace("\n", "") }}
+```
+{%- endif -%}

@@ -1,6 +1,10 @@
 """Functions in this module will be avaliable to call in jinja templates"""
+import datetime
 import yaml
 import re
+
+def get_datetime():
+    return str(datetime.datetime.now())
 
 def recurse_class_tree_text(tree, indent = 4):
     return yaml.dump(tree, indent = indent).replace(": {}", "")
@@ -12,14 +16,6 @@ def flatten_struct(struct):
         out[key] = s[key]
     return out
 
-def _get_helpers():
-    import reflect
-    import os
-
-    r = reflect.Reflect(os.getcwd())
-    r.import_module("jinja_helpers")
-    return {k: v[0] for k, v in r.get_functions("jinja_helpers").items()}
-
 def get_required_num_args(funcname):
     return int(re.findall(r"(?<=\()(\d+)(?=\))", funcname)[0])
 
@@ -28,6 +24,12 @@ def bool_to_yesno(b:bool):
         return "YES"
     else:
         return "NO"
+
+def bool_to_checkbox(b:bool):
+    if b:
+        return "[x]"
+    else:
+        return "[ ]"
 
 def len_documentation(comments, docs):
     """This function isn't in jinja"""
@@ -45,6 +47,14 @@ def len_documentation(comments, docs):
 
 def get_source_numlines(source):
     return "%d lines (%d characters)" % (source.count("\n"), len(source))
+
+def _get_helpers():
+    import reflect
+    import os
+
+    r = reflect.Reflect(os.getcwd())
+    r.import_module("jinja_helpers")
+    return {k: v[0] for k, v in r.get_functions("jinja_helpers").items()}
 
 if __name__ == "__main__":
     # import json
