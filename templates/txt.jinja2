@@ -38,6 +38,7 @@
 {%- endmacro -%}
 
 === {{ name }} - Student ID: {{ student_no }} Automatic marking report ===
+Report generated at {{ get_datetime() }}
 
 == Class Tree: ==
 
@@ -109,5 +110,5 @@
 {% endfor %}
 
 {% if out != "stdout" -%}
-{{ test_results["pytest_report"] }}
+{{ test_results["pytest_report"].replace("\n", "") }}
 {%- endif -%}
