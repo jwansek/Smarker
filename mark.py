@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import jinja_helpers
 import configparser
+import misc_classes
 import argparse
 import tempfile
 import zipfile
@@ -11,59 +12,15 @@ import yaml
 import json
 import os
 
-@dataclass
-class FileDependencies:
-    assessment_struct:dict
-
-    def __enter__(self):
-        try:
-            for file_dep in self.assessment_struct["dependencies"]["files"]:
-                if os.path.isfile(file_dep):
-                    shutil.copy(file_dep, os.path.split(file_dep)[-1])
-                else:
-                    shutil.copytree(file_dep, os.path.split(file_dep)[-1])
-                # print("%s --> %s" % (file_dep, os.path.join(os.getcwd(), os.path.split(file_dep)[-1])))
-        except KeyError:
-            pass
-
-    def __exit__(self, type, value, traceback):
-        stuff_to_remove = []
-        try:
-            stuff_to_remove += [os.path.split(f)[-1] for f in self.assessment_struct["dependencies"]["files"]]
-        except KeyError:
-            pass
-        try:
-            stuff_to_remove += self.assessment_struct["produced_files"]
-        except KeyError:
-            pass
-
-        for file_dep in stuff_to_remove:
-            if os.path.exists(file_dep):
-                if os.path.isfile(file_dep):
-                    os.remove(file_dep)
-                else:
-                    shutil.rmtree(file_dep)
-
 def main(**kwargs):
     student_no = os.path.splitext(os.path.split(args["submission"])[-1])[0]
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        with zipfile.ZipFile(args["submission"]) as z:
-            z.extractall(tempdir)
-
-        # some zipping applications make a folder inside the zip with the files in that folder.
-        # try to deal with this here.
-        submission_files = tempdir
-        if os.path.isdir(
-            os.path.join(submission_files, os.listdir(submission_files)[0])
-        ) and len(os.listdir(submission_files)) == 1:
-            submission_files = os.path.join(submission_files, os.listdir(submission_files)[0])
-
+    with misc_classes.ExtractZipToTempDir(args["submission"]) as submission_files:
         with open(kwargs["assessment"], "r") as f:
             assessment_struct = yaml.safe_load(f)
 
-        with FileDependencies(assessment_struct):
-            output = reflect.gen_reflection_report(submission_files, assessment_struct, student_no, kwargs)
+        with misc_classes.FileDependencies(assessment_struct):
+            output = reflect.gen_reflection_report(submission_files, assessment_struct, student_no, kwargs, args["submission"])
         output_file = kwargs["out"]
         
         if kwargs["format"] == "yaml":

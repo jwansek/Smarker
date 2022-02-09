@@ -21,4 +21,6 @@ class Kitten(Cat):
     def speak(self):
         return "meow (but cuter)"
 
-print()
+kitten = Kitten()
+with open("animals.txt", "w") as f:
+    f.write(kitten.speak())

@@ -2,6 +2,8 @@ import xml.etree.ElementTree as etree
 from dataclasses import dataclass
 from functools import reduce
 from operator import getitem
+import jinja_helpers
+import misc_classes
 import subprocess
 import importlib
 import traceback
@@ -17,6 +19,8 @@ import re
 @dataclass
 class Reflect:
     client_code_path:str
+    assessment_struct:dict
+    zip_file:str
     imported_modules = {}
 
     def __post_init__(self):
@@ -227,13 +231,17 @@ class Reflect:
     def __format_doc(*doc):
         return str(doc[1]).rstrip()
             
-def gen_reflection_report(client_code_path, assessment_struct, student_no, configuration):
-    # print(configuration)
-    reflection = Reflect(client_code_path)
+def gen_reflection_report(client_code_path, assessment_struct, student_no, configuration, zip_file):
+    reflection = Reflect(client_code_path, assessment_struct, zip_file)
     present_module_names = [i.name for i in reflection.client_modules]
     out = assessment_struct
     out["student_no"] = student_no
     tests_to_run = {}
+
+    try:
+        produced_files = assessment_struct["produced_files"]
+    except KeyError:
+        produced_files = []
 
     for i, required_file in enumerate(assessment_struct["files"], 0):
         required_file = list(required_file.keys())[0]
@@ -327,9 +335,39 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
                     except KeyError:
                         tests_to_run[filename] = [test]
 
+        if "run" in required_files_features.keys():
+            with misc_classes.ExtractZipToTempDir(zip_file) as tempdir:
+                with misc_classes.FileDependencies(assessment_struct, tempdir):
+                    with misc_classes.ChangeDirectory(tempdir):
+                        for cmd, contents in jinja_helpers.flatten_struct(required_files_features["run"]).items():
+
+                            lines = ""
+                            if "monitor" in contents.keys():
+
+                                if contents["monitor"] not in produced_files:
+                                    raise MonitoredFileNotInProducedFilesException("The monitored file %s is not in the list of produced files. It needs to be added." % contents["monitor"])
+
+                                subprocess.run(cmd.split())
+                                with open(contents["monitor"], "r") as f:
+                                    lines = f.read()
+                                
+                            else:
+                                proc = subprocess.Popen(cmd.split(), stdout = subprocess.PIPE)
+                                while True:
+                                    line = proc.stdout.readline()
+                                    if not line:
+                                        break
+                                    lines += line.decode()
+                            
+                            print("===Lines===")
+                            print(lines)
+
     out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout" and configuration["format"] in ["text", "txt"])
     out["class_tree"] = reflection.get_class_tree()
-    return out
+    # return out
+
+class MonitoredFileNotInProducedFilesException(Exception):
+    pass
 
 if __name__ == "__main__":
     # user_code_path = "D:\\Edencloud\\UniStuff\\3.0 - CMP 3rd Year Project\\Smarker\\../ExampleSubmissions/Submission_A"

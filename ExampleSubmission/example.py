@@ -3,6 +3,7 @@
 
 import tkinter as tk
 from dataclasses import dataclass
+import sys
 
 class Application(tk.Tk):
     """An example class, which implements a GUI by inheriting from tkinter.Tk
@@ -59,7 +60,7 @@ def hello_world(times):
     Returns:
         str: Hello world, repeated as many times as nessicary
     """
-    return "hello world! " * 3
+    return "hello world! " * times
 
 def an_undocumented_function():
     return 3.14156
@@ -70,5 +71,4 @@ def greet(*names, greeting="Hello"):
         print(greeting, name)
 
 if __name__ == "__main__":
-    app = Application()
-    app.mainloop()
+    print(hello_world(int(sys.argv[1])))

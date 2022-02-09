@@ -22,6 +22,10 @@ files:
                 dateOne = example.MyDate(day = 12, month = 8, year = 2001)
                 dateTwo = example.MyDate(day = 5, month = 4, year = 1999)
                 assert dateOne == dateTwo
+        run:
+            - python example.py 1:
+                regexes:
+                    - hello world\!
     - aFileThatIsntThere.py:
         functions:
             - hello_world(2)
@@ -37,6 +41,13 @@ files:
             - |
                 milton = animals.Dog()
                 assert milton.move() == "*moves*"
+        run:
+            - python animals.py:
+                monitor: animals.txt
+                regexes:
+                    - TURRÓN
+produced_files:
+    - animals.txt
 dependencies:
     files:
         - ../wsData.txt
