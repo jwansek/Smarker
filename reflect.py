@@ -362,6 +362,7 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
                                 for regex_ in contents["regexes"]:
                                     matches[regex_] = re.findall(regex_, lines)
                                 required_files_features["run"][j][cmd]["regexes"] = matches
+                                required_files_features["run"][j][cmd]["full_output"] = lines
 
     out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout" and configuration["format"] in ["text", "txt"])
     out["class_tree"] = reflection.get_class_tree()

@@ -125,6 +125,12 @@ Report generated at {{ get_datetime() }}
                         {%- endfor -%}
                         {%- endif -%}
                 {%- endfor -%}
+                {%- if txt_show_all_run_output == "True" %}
+                Full runtime output:
+                ```
+                    {{ runtime_contents["full_output"]|indent(20, False) }}    
+                ```
+                {%- endif -%}
             {%- endfor -%}
     {%- endif -%}
     {%- endif -%}

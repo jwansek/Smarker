@@ -71,4 +71,4 @@ def greet(*names, greeting="Hello"):
         print(greeting, name)
 
 if __name__ == "__main__":
-    print(hello_world(int(sys.argv[1])))
+    print(hello_world(int(sys.argv[1])) + "\n\nowo" )
