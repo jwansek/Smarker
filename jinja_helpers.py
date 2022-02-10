@@ -45,6 +45,9 @@ def len_documentation(comments, docs):
 
     return commentlen + docslen
 
+def len_(obj):
+    return len(obj)
+
 def get_source_numlines(source):
     return "%d lines (%d characters)" % (source.count("\n"), len(source))
 

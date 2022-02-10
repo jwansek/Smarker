@@ -103,6 +103,30 @@ Report generated at {{ get_datetime() }}
             {{ expand_function(function_name, function_contents)|indent(12, False) }}
         {%- endfor -%}
     {%- endif -%}
+    {% if "run" in files_contents.keys() %}
+        Runtime Analysis:
+        {%- set flat_runtime = flatten_struct(files_contents["run"]) %}
+        {%- for cmd, runtime_contents in flat_runtime.items() %}
+            Command `{{ cmd }}`:
+                Monitor:
+                {%- if "monitor" in runtime_contents.keys() %}
+                    {{ runtime_contents["monitor"] }}
+                {%- else %}
+                    stdout
+                {%- endif %}
+                Regexes:
+                {%- for regex_, results in runtime_contents["regexes"].items() %}
+                    `{{regex_}}`:
+                        Found occurrences: {{ len_(results) }}
+                        {%- if txt_show_all_regex_occurrences == "True" and len_(results) > 0 %}
+                        Occurrences list:
+                        {%- for result in results %}
+                            {{ result }}
+                        {%- endfor -%}
+                        {%- endif -%}
+                {%- endfor -%}
+            {%- endfor -%}
+    {%- endif -%}
     {%- endif -%}
     {% else %}
         *** File not present ***

@@ -23,6 +23,9 @@ files:
                 dateTwo = example.MyDate(day = 5, month = 4, year = 1999)
                 assert dateOne == dateTwo
         run:
+            - python example.py 3:
+                regexes:
+                    - hello world\!
             - python example.py 1:
                 regexes:
                     - hello world\!
@@ -46,6 +49,7 @@ files:
                 monitor: animals.txt
                 regexes:
                     - TURRÓN
+                    - meow \(but cuter\)
 produced_files:
     - animals.txt
 dependencies:
