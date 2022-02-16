@@ -204,7 +204,7 @@ class Reflect:
         with tempfile.TemporaryDirectory() as tmp:
             junitxmlpath = os.path.join(tmp, "report.xml")
             test_files = [os.path.join(self.client_code_path, "test_%s" % f) for f in tests.keys()]
-            cmd = ["pytest", "-v"] + test_files + ["--junitxml=%s" % junitxmlpath]
+            cmd = ["pytest", "-vv"] + test_files + ["--junitxml=%s" % junitxmlpath]
             # print("cmd: ", " ".join(cmd))
             if test_files == []:
                 test_results["pytest_report"] = "*** No Tests ***"
@@ -347,8 +347,12 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
                                         raise MonitoredFileNotInProducedFilesException("The monitored file %s is not in the list of produced files. It needs to be added." % contents["monitor"])
 
                                     subprocess.run(cmd.split())
-                                    with open(contents["monitor"], "r") as f:
-                                        lines = f.read()
+                                    if os.path.exists(contents["monitor"]):
+                                        with open(contents["monitor"], "r") as f:
+                                            lines = f.read()
+                                    else:
+                                        lines = "*** File not produced ***"
+                                        # yes, this could potentially cause regexes to still be found
                                     
                                 else:
                                     proc = subprocess.Popen(cmd.split(), stdout = subprocess.PIPE)

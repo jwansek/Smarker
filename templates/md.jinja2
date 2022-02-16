@@ -84,12 +84,33 @@ Please note that this file cannot be analysed or have tests preformed upon it-
 {%- set flat_classes = flatten_struct(files_contents["classes"]) -%}
 {% for class_name, class_contents in flat_classes.items() %}
         - ##### `{{ class_name}}`:
+{%- if class_contents["present"] %}
+            - ###### Documentation:
+                {%- set len_docs = len_documentation(class_contents["documentation"]["comments"], class_contents["documentation"]["doc"]) %}
+                - {{ len_docs }} characters long
+{%- if md_show_full_docs == "True" %}
+                - *Comments*:
+{%- if class_contents["documentation"]["comments"] == "None" %}
+                    - [ ] No comments present
+{%- else %}
+{{ code_block(class_contents["documentation"]["comments"])|indent(20, True) }}
+{%- endif %}
+                - *Docstring*:
+{%- if class_contents["documentation"]["doc"] == "None" %}
+                    - [ ] No docstring present
+{%- else %}
+{{ code_block(class_contents["documentation"]["doc"])|indent(20, True) }}
+{%- endif -%}
+{%- endif %}
 {%- if "methods" in class_contents.keys() %}
             - ###### Methods:
 {%- set flat_methods = flatten_struct(class_contents["methods"]) -%}
 {%- for method_name, method_contents in flat_methods.items() %}
 {{ expand_function(method_name, method_contents, "Method")|indent(16, True) }}
 {%- endfor -%}
+{%- endif -%}
+{%- else %}
+            - [ ] Class not present
 {%- endif -%}
 {%- endfor -%}
 {%- endif -%}
@@ -115,12 +136,15 @@ Please note that this file cannot be analysed or have tests preformed upon it-
 {%- for regex_, results in runtime_contents["regexes"].items() %}
                 - `{{regex_}}`:
                     - Found occurrences: {{ len_(results) }}
+{%- if code_block(runtime_contents["full_output"]) == "*** File not produced ***" %}
+                        - *** File was not produced- no occurrences ***
+{%- endif -%}
 {%- if md_show_all_regex_occurrences == "True" and len_(results) > 0 %}
                     - Occurrences list:
 {%- for result in results %}
                         - `{{ result }}`
 {%- endfor -%}
-{%- if txt_show_all_run_output == "True" %}
+{%- if md_show_all_run_output == "True" %}
                     - Full runtime output:
 {{ code_block(runtime_contents["full_output"])|indent(24, True) }}    
 {%- endif -%}
@@ -137,6 +161,6 @@ Please note that this file cannot be analysed or have tests preformed upon it-
 {% if out != "stdout" and format != "html" -%}
 ## Tests:
 ```
-{{ test_results["pytest_report"].replace("\n", "") }}
+{{ test_results["pytest_report"] }}
 ```
 {%- endif -%}

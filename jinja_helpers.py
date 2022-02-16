@@ -10,6 +10,7 @@ def recurse_class_tree_text(tree, indent = 4):
     return yaml.dump(tree, indent = indent).replace(": {}", "")
 
 def flatten_struct(struct):
+    # print("Attempting to flatten: ", struct)
     out = {}
     for s in struct:
         key = list(s.keys())[0]

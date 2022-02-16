@@ -8,6 +8,11 @@ class Animal:
         return "*moves*"
 
 class Dog(Animal):
+    """Some
+
+    multiline
+
+    docs"""
     def speak(self):
         return "woof"
 

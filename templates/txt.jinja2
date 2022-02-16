@@ -69,17 +69,17 @@ Report generated at {{ get_datetime() }}
                 {%- if files_contents["documentation"]["comments"] == "None" %}
                 *** No comments present ***
                 {%- else %}
-        ```
-        {{ files_contents["documentation"]["comments"]|indent(8, False) }}
-        ```
+                ```
+                {{ files_contents["documentation"]["comments"]|indent(16, False) }}
+                ```
                 {%- endif %}
             Docstring:
                 {%- if files_contents["documentation"]["doc"] == "None" %}
                 *** No docstring present ***
                 {%- else %}
-        ```
-        {{ files_contents["documentation"]["doc"]|indent(8, False) }}
-        ```
+                ```
+                {{ files_contents["documentation"]["doc"]|indent(16, False) }}
+                ```
                 {%- endif -%}
             {%- endif %}
     {%- if "classes" in files_contents.keys() %}
@@ -87,12 +87,36 @@ Report generated at {{ get_datetime() }}
         {%- set flat_classes = flatten_struct(files_contents["classes"]) -%}
         {% for class_name, class_contents in flat_classes.items() %}
             {{ class_name + ":" }}
+            {%- if class_contents["present"] %}
+                Documentation:
+                    {{ len_documentation(class_contents["documentation"]["comments"], class_contents["documentation"]["doc"]) }} characters long
+                {%- if txt_show_full_docs == "True" %}
+                Comments:
+                    {%- if class_contents["documentation"]["comments"] == "None" %}
+                    *** No comments present ***
+                    {%- else %}
+                    ```
+                    {{ class_contents["documentation"]["comments"]|indent(16, False) }}
+                    ```
+                    {%- endif %}
+                Docstring:
+                    {%- if class_contents["documentation"]["doc"] == "None" %}
+                    *** No docstring present ***
+                    {%- else %}
+                    ```
+                    {{ class_contents["documentation"]["doc"]|indent(16, False) }}
+                    ```
+                    {%- endif -%}
+                {%- endif %}
             {%- if "methods" in class_contents.keys() %}
                 Methods:
                 {%- set flat_methods = flatten_struct(class_contents["methods"]) -%}
                 {%- for method_name, method_contents in flat_methods.items() %}
                     {{ expand_function(method_name, method_contents, "Method")|indent(20, False) }}
                 {%- endfor -%}
+            {%- endif -%}
+            {%- else %}
+                *** Class not present ***
             {%- endif -%}
         {%- endfor -%}
     {%- endif -%}
@@ -140,5 +164,5 @@ Report generated at {{ get_datetime() }}
 {% endfor %}
 
 {% if out != "stdout" -%}
-{{ test_results["pytest_report"].replace("\n", "") }}
+{{ test_results["pytest_report"] }}
 {%- endif -%}
