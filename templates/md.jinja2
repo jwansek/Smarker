@@ -142,7 +142,7 @@ Please note that this file cannot be analysed or have tests preformed upon it-
 {%- if md_show_all_regex_occurrences == "True" and len_(results) > 0 %}
                     - Occurrences list:
 {%- for result in results %}
-                        - `{{ result }}`
+                        - `{{ result.replace("\n", "\\n") }}`
 {%- endfor -%}
 {%- if md_show_all_run_output == "True" %}
                     - Full runtime output:
@@ -161,6 +161,6 @@ Please note that this file cannot be analysed or have tests preformed upon it-
 {% if out != "stdout" and format != "html" -%}
 ## Tests:
 ```
-{{ test_results["pytest_report"] }}
+{{ test_results["pytest_report"].replace("\r", "") }}
 ```
 {%- endif -%}

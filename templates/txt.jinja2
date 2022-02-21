@@ -145,7 +145,7 @@ Report generated at {{ get_datetime() }}
                         {%- if txt_show_all_regex_occurrences == "True" and len_(results) > 0 %}
                         Occurrences list:
                         {%- for result in results %}
-                            {{ result }}
+                            {{ result.replace("\n", "\\n") }}
                         {%- endfor -%}
                         {%- endif -%}
                 {%- endfor -%}
@@ -164,5 +164,5 @@ Report generated at {{ get_datetime() }}
 {% endfor %}
 
 {% if out != "stdout" -%}
-{{ test_results["pytest_report"] }}
+{{ test_results["pytest_report"].replace("\r", "") }}
 {%- endif -%}

@@ -70,5 +70,9 @@ def greet(*names, greeting="Hello"):
     for name in names:
         print(greeting, name)
 
+def make_multilines():
+    print("True\n\nFalse")
+
 if __name__ == "__main__":
     print(hello_world(int(sys.argv[1])) + "\n\nowo" )
+    make_multilines()

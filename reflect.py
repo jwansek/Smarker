@@ -362,6 +362,7 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
                                             break
                                         lines += line.decode()
                                 
+                                lines = lines.replace("\r", "")
                                 matches = {}
                                 for regex_ in contents["regexes"]:
                                     matches[regex_] = re.findall(regex_, lines)

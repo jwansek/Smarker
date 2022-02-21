@@ -29,6 +29,7 @@ files:
             - python example.py 1:
                 regexes:
                     - hello world\!
+                    - True\n\nFalse
     - aFileThatIsntThere.py:
         functions:
             - hello_world(2)

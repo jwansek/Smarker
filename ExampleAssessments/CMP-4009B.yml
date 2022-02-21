@@ -1,4 +1,4 @@
-name: CMP-4009B
+name: CMP-4009B-2020-A2
 files:
     - pjtool.py:
         classes:
@@ -39,6 +39,10 @@ files:
     - tester.py:
         functions:
             - dateTester(2)
+        run:
+            - python tester.py:
+                regexes:
+                    - True\nFalse
     - turbine.py:
         classes:
             - Turbine:
