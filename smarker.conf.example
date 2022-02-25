@@ -1,8 +1,8 @@
 [mysql]
 host = 192.168.1.92
 port = 3306
-user = root
-passwd = *************
+user = smarker
+passwd = smarkerPassword
 
 [md]
 show_full_docs = False
