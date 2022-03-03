@@ -158,6 +158,7 @@ class Reflect:
                     self.get_class_full_name(i) 
                     for i in reversed(list(inspect.getmro(class_[0])))
                 ])
+
         tree = {}
         added = []  # the expander makes duplicates. keep a list to remove them
                         # sadly a collections.Counter doesnt work with lists of lists    
@@ -166,6 +167,7 @@ class Reflect:
                 setTree(tree, [i for i in reversed(s)][::-1])
                 added.append(s)
 
+        # print(tree)
         # return inspect.getclasstree(classes)
         return tree
 

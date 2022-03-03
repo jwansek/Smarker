@@ -28,8 +28,12 @@ def main(**kwargs):
         elif kwargs["format"] == "json":
             strout = json.dumps(output, indent = 4)
         else:
-            with open(os.path.join("templates", "%s.jinja2" % kwargs["format"]), "r") as f:
-                jinja_template = jinja2.Template(f.read())
+            fp = os.path.join("templates", "%s.jinja2" % kwargs["format"])
+            if kwargs["format"] == "tex":
+                jinja_template = misc_classes.latex_jinja_env.get_template("tex.jinja2")
+            else:
+                with open(fp, "r") as f:
+                    jinja_template = jinja2.Template(f.read())
 
             strout = jinja_template.render(**output, **jinja_helpers._get_helpers(), **kwargs)
 

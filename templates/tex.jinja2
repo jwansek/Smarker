@@ -1,0 +1,26 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry} % margins
+\usepackage{forest} % for the class tree
+\usepackage{pdfpages}
+
+\author{((( student_no )))}
+\title{((( name ))) - Automatic marking report}
+
+\begin{document}
+
+\maketitle
+\section{Class Tree}
+
+\begin{figure}[h]
+    \centering
+    \begin{forest}
+        ((( recurse_class_tree_forest(class_tree)|indent(8, False) )))
+    \end{forest}
+    \caption{Class inheritance tree}
+\end{figure}
+
+\section{Tests}
+\includepdf[pages={1-},scale=0.9]{((( junit_xml_to_html(test_results["junitxml"], student_no) )))}
+
+\end{document}

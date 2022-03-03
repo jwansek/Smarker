@@ -1,5 +1,9 @@
+# sudo apt-get install wkhtmltopdf
 Jinja2==3.0.3
 misaka==2.1.1
 Pygments==2.10.0
 PyYAML==6.0
 pytest
+junit2html
+pdfkit
+lxml
