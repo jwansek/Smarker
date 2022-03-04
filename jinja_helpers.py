@@ -42,7 +42,7 @@ def junit_xml_to_html(junit_xml, student_id):
     pdfkit.from_string(lxml.etree.tostring(root).decode(), out_fname)
 
     # remove the tempfiles
-    input("%s continue..." % html_path)
+    # input("%s continue..." % html_path)
     shutil.rmtree(os.path.split(html_path)[0])
     os.remove(xml_f.name)
 

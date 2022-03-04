@@ -260,8 +260,9 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
             out["files"][i][required_file]["exception"] = {}
             out["files"][i][required_file]["exception"]["type"] = str(type(e))
             out["files"][i][required_file]["exception"]["str"] = str(e)
-            # TODO: work out how to only get the exception stack of the client code
-            out["files"][i][required_file]["exception"]["traceback"] = ''.join(traceback.format_exception(None, e, e.__traceback__))
+            # TODO: test this indexing so we can be sure we're getting client code only
+            e_list = traceback.format_exception(None, e, e.__traceback__)
+            out["files"][i][required_file]["exception"]["traceback"] = ''.join([e_list[0]] + e_list[12:])
 
             continue
 

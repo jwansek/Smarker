@@ -2,7 +2,16 @@
 
 \usepackage[margin=1in]{geometry} % margins
 \usepackage{forest} % for the class tree
-\usepackage{pdfpages}
+\usepackage{pdfpages} % for importing the test results pdf
+\usepackage{xcolor} % colours
+\usepackage{listings}
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\newcommand{\errortext}[1]{\textcolor{red}{\textbf{#1}}}
 
 \author{((( student_no )))}
 \title{((( name ))) - Automatic marking report}
@@ -20,7 +29,68 @@
     \caption{Class inheritance tree}
 \end{figure}
 
+\section{File Analysis}
+((* set flat_files = flatten_struct(files) *))
+((* for filename, files_contents in flat_files.items() *))
+    \subsection{\texttt{((( filename )))}}
+    ((* if files_contents["present"] *))
+        ((* if files_contents["has_exception"] *))
+            \errortext{File cannot be run - has compile time exception.}
+
+            Please note that this file cannot be analysed or have tests preformed upon it-
+            this can lead to the whole test suite failing if another module imports this.
+                    
+            \textbf{Exception Type:} \texttt{((( files_contents["exception"]["type"] )))}
+            
+            \textbf{Exception String:} \texttt{((( files_contents["exception"]["str"] )))}
+
+            \textbf{Full Traceback:}
+
+            \begin{lstlisting}
+((( files_contents["exception"]["traceback"] )))
+            \end{lstlisting}
+        ((* else *))
+            \subsubsection{Documentation:}
+
+            ((( len_documentation(files_contents["documentation"]["comments"], files_contents["documentation"]["doc"]) ))) characters long
+            ((* if tex_show_full_docs == "True" *))
+                
+                \textbf{Comments:}
+                ((* if files_contents["documentation"]["comments"] == "None" *))
+                    \errortext{No comments present.}
+                ((* else *))
+                    \begin{lstlisting}
+((( files_contents["documentation"]["comments"] )))
+                    \end{lstlisting}
+                ((* endif *))
+
+                \textbf{Docstring:}
+                ((* if files_contents["documentation"]["doc"] == "None" *))
+                    \errortext{No docstring present.}
+                ((* else *))
+                    \begin{lstlisting}
+((( files_contents["documentation"]["doc"] )))
+                    \end{lstlisting}
+                ((* endif *))
+            ((* endif *))
+
+            ((* if "classes" in files_contents.keys() *))
+                \subsubsection{Classes}
+
+
+            ((* endif *))
+
+        ((* endif *))
+    ((* else *))
+        \errortext{File is not present.}
+    ((* endif *))
+((* endfor *))
+
 \section{Tests}
-\includepdf[pages={1-},scale=0.9]{((( junit_xml_to_html(test_results["junitxml"], student_no) )))}
+((* if test_results["pytest_report"] == "*** No Tests ***" *))
+    No tests were executed.
+((* else *))
+    \includepdf[pages={1-},scale=1.0]{((( junit_xml_to_html(test_results["junitxml"], student_no) )))}
+((* endif *))
 
 \end{document}
