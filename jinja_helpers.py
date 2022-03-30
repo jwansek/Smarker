@@ -91,6 +91,26 @@ def len_(obj):
 def get_source_numlines(source):
     return "%d lines (%d characters)" % (source.count("\n"), len(source))
 
+#https://stackoverflow.com/questions/16259923/how-can-i-escape-latex-special-characters-inside-django-templates
+def tex_escape(text):
+    conv = {
+        '&': r'\&',
+        '%': r'\%',
+        '$': r'\$',
+        '#': r'\#',
+        '_': r'\_',
+        '{': r'\{',
+        '}': r'\}',
+        '~': r'\textasciitilde{}',
+        '^': r'\^{}',
+        '\\': r'\textbackslash{}',
+        '<': r'\textless{}',
+        '>': r'\textgreater{}',
+    }
+    regex = re.compile('|'.join(re.escape(str(key)) for key in sorted(conv.keys(), key = lambda item: - len(item))))
+    # print(text, regex.sub(lambda match: conv[match.group()], text))
+    return regex.sub(lambda match: conv[match.group()], text)
+
 def _get_helpers():
     import reflect
     import os

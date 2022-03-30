@@ -1,6 +1,18 @@
+((* macro expand_function(function_name, function_contents, x = "Function") *))
+    \texttt{((( tex_escape(function_name) )))}:
+
+    ((* if function_contents["present"] *))
+        Arguments: \texttt{((( tex_escape(function_contents["arguments"]) )))}
+    ((* else *))
+        \errortext(Function \texttt{((( tex_escape(function_name) )))} not present.)
+    ((* endif *))
+((* endmacro *))
+
 \documentclass{article}
 
 \usepackage[margin=1in]{geometry} % margins
+\usepackage{multicol} % columns
+\usepackage{float} % layout
 \usepackage{forest} % for the class tree
 \usepackage{pdfpages} % for importing the test results pdf
 \usepackage{xcolor} % colours
@@ -18,10 +30,12 @@ breaklines=true
 
 \begin{document}
 
+\begin{multicols}{((( tex_columns )))}
+
 \maketitle
 \section{Class Tree}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{forest}
         ((( recurse_class_tree_forest(class_tree)|indent(8, False) )))
@@ -50,7 +64,7 @@ breaklines=true
 ((( files_contents["exception"]["traceback"] )))
             \end{lstlisting}
         ((* else *))
-            \subsubsection{Documentation:}
+            \textbf{Documentation:}
 
             ((( len_documentation(files_contents["documentation"]["comments"], files_contents["documentation"]["doc"]) ))) characters long
             ((* if tex_show_full_docs == "True" *))
@@ -77,6 +91,61 @@ breaklines=true
             ((* if "classes" in files_contents.keys() *))
                 \subsubsection{Classes}
 
+                ((* set flat_classes = flatten_struct(files_contents["classes"]) *))
+                ((* for class_name, class_contents in flat_classes.items() *))
+                    
+                    
+                    \texttt{((( class_name )))}:
+
+                    ((* if class_contents["present"] *))
+                        \textbf{Documentation:}
+                        
+                        ((( len_documentation(class_contents["documentation"]["comments"], class_contents["documentation"]["doc"]) ))) characters long
+                        ((* if tex_show_full_docs == "True" *))
+                        
+                        
+                        \textbf{Comments:}
+
+                        ((* if class_contents["documentation"]["comments"] == "None" *))
+                            \errortext{No comments present.}
+                        ((* else *))
+                            \begin{lstlisting}
+((( class_contents["documentation"]["comments"] )))
+                            \end{lstlisting}
+                        ((* endif *))
+
+                        
+                        \textbf{Docstring:}
+
+                        ((* if class_contents["documentation"]["doc"] == "None" *))
+                            \errortext{No docstring present.}
+                        ((* else *))
+                            \begin{lstlisting}
+((( class_contents["documentation"]["doc"] )))
+                            \end{lstlisting}
+                        ((* endif *))
+
+                        ((* if "methods" in class_contents.keys() *))
+                        \textbf{Methods:}
+                            ((* set flat_methods = flatten_struct(class_contents["methods"]) *))
+                            ((* for method_name, method_contents in flat_methods.items() *))
+                                ((( expand_function(method_name, method_contents, x = "Method") )))
+                            ((* endfor *))
+
+
+                        ((* endif *))
+
+                    ((* endif *))
+                    
+                    ((* else *))
+                        
+                        \errortext{Class not present.}
+
+                    ((* endif *))
+
+
+                ((* endfor *))
+
 
             ((* endif *))
 
@@ -92,5 +161,7 @@ breaklines=true
 ((* else *))
     \includepdf[pages={1-},scale=1.0]{((( junit_xml_to_html(test_results["junitxml"], student_no) )))}
 ((* endif *))
+
+\end{multicols}
 
 \end{document}
