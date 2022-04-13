@@ -2,13 +2,44 @@
     \texttt{((( tex_escape(function_name) )))}:
 
     ((* if function_contents["present"] *))
-        Arguments: \texttt{((( tex_escape(function_contents["arguments"]) )))}
+        \begin{itemize}
+            \item Arguments: \pyth{((( function_contents["arguments"] )))}
+            \item Documentation: ((( len_documentation(function_contents["documentation"]["comments"], function_contents["documentation"]["doc"]) ))) characters long
+            ((* if tex_show_full_docs == "True" *))
+                               
+                \textbf{Comments:}
+                ((*- if function_contents["documentation"]["comments"] == "None" *))
+                    \errortext{No comments present.}
+                ((* else *))
+                    \begin{lstlisting}
+((( function_contents["documentation"]["comments"] )))
+                    \end{lstlisting}
+                ((* endif *))
+
+                \textbf{Docstring}:
+                ((*- if function_contents["documentation"]["doc"] == "None" *))
+                    \errortext{No docstring present.}
+                ((* else *))
+                    \begin{lstlisting}
+((( function_contents["documentation"]["doc"] )))
+                    \end{lstlisting}
+                ((* endif *))
+            ((* endif *))
+            \item Code: ((( get_source_numlines(function_contents["source_code"]) )))
+            ((* if tex_show_source == "True" *))
+                \begin{python}
+((( function_contents["source_code"] )))
+                \end{python}
+            ((* endif *))
+        \end{itemize}
     ((* else *))
-        \errortext(Function \texttt{((( tex_escape(function_name) )))} not present.)
+        \errortext{((( x ))) \texttt{((( tex_escape(function_name) )))} not present.}
     ((* endif *))
 ((* endmacro *))
 
 \documentclass{article}
+
+\usepackage{python-latex-highlighting/pythonhighlight}
 
 \usepackage[margin=1in]{geometry} % margins
 \usepackage{multicol} % columns
@@ -30,7 +61,9 @@ breaklines=true
 
 \begin{document}
 
+((* if tex_columns != "1" *))
 \begin{multicols}{((( tex_columns )))}
+((* endif *))
 
 \maketitle
 \section{Class Tree}
@@ -64,13 +97,14 @@ breaklines=true
 ((( files_contents["exception"]["traceback"] )))
             \end{lstlisting}
         ((* else *))
-            \textbf{Documentation:}
+            \begin{itemize}
+            \item \textbf{Documentation:}
 
             ((( len_documentation(files_contents["documentation"]["comments"], files_contents["documentation"]["doc"]) ))) characters long
             ((* if tex_show_full_docs == "True" *))
                 
-                \textbf{Comments:}
-                ((* if files_contents["documentation"]["comments"] == "None" *))
+                \item \textbf{Comments:}
+                ((*- if files_contents["documentation"]["comments"] == "None" *))
                     \errortext{No comments present.}
                 ((* else *))
                     \begin{lstlisting}
@@ -78,35 +112,39 @@ breaklines=true
                     \end{lstlisting}
                 ((* endif *))
 
-                \textbf{Docstring:}
-                ((* if files_contents["documentation"]["doc"] == "None" *))
+                \item \textbf{Docstring:}
+                ((*- if files_contents["documentation"]["doc"] == "None" *))
                     \errortext{No docstring present.}
                 ((* else *))
                     \begin{lstlisting}
 ((( files_contents["documentation"]["doc"] )))
                     \end{lstlisting}
                 ((* endif *))
+
             ((* endif *))
+            \end{itemize}
 
             ((* if "classes" in files_contents.keys() *))
                 \subsubsection{Classes}
 
                 ((* set flat_classes = flatten_struct(files_contents["classes"]) *))
                 ((* for class_name, class_contents in flat_classes.items() *))
+                \begin{itemize}
+                
                     
-                    
-                    \texttt{((( class_name )))}:
+                    \item \texttt{((( class_name )))}:
 
                     ((* if class_contents["present"] *))
-                        \textbf{Documentation:}
-                        
+                        \begin{itemize}
+                        \item \textbf{Documentation:}
                         ((( len_documentation(class_contents["documentation"]["comments"], class_contents["documentation"]["doc"]) ))) characters long
+                        
                         ((* if tex_show_full_docs == "True" *))
                         
                         
-                        \textbf{Comments:}
+                        \item \textbf{Comments:}
 
-                        ((* if class_contents["documentation"]["comments"] == "None" *))
+                        ((* if class_contents["documentation"]["comments"] == "None" -*))
                             \errortext{No comments present.}
                         ((* else *))
                             \begin{lstlisting}
@@ -115,9 +153,9 @@ breaklines=true
                         ((* endif *))
 
                         
-                        \textbf{Docstring:}
+                        \item \textbf{Docstring:}
 
-                        ((* if class_contents["documentation"]["doc"] == "None" *))
+                        ((* if class_contents["documentation"]["doc"] == "None" -*))
                             \errortext{No docstring present.}
                         ((* else *))
                             \begin{lstlisting}
@@ -126,15 +164,16 @@ breaklines=true
                         ((* endif *))
 
                         ((* if "methods" in class_contents.keys() *))
-                        \textbf{Methods:}
+                        \item \textbf{Methods:}
                             ((* set flat_methods = flatten_struct(class_contents["methods"]) *))
+                            \begin{itemize}
                             ((* for method_name, method_contents in flat_methods.items() *))
-                                ((( expand_function(method_name, method_contents, x = "Method") )))
+                                \item ((( expand_function(method_name, method_contents, x = "Method") )))
                             ((* endfor *))
-
+                            \end{itemize}
 
                         ((* endif *))
-
+                    \end{itemize}
                     ((* endif *))
                     
                     ((* else *))
@@ -143,11 +182,52 @@ breaklines=true
 
                     ((* endif *))
 
-
+                \end{itemize}
                 ((* endfor *))
 
 
             ((* endif *))
+
+            ((* if "functions" in files_contents.keys() *))
+                \subsubsection{Functions}
+                ((* set flat_functions = flatten_struct(files_contents["functions"]) *))
+                \begin{itemize}
+                ((* for function_name, function_contents in flat_functions.items() *))
+                    \item ((( expand_function(function_name, function_contents) )))
+                ((* endfor *))
+                \end{itemize}
+            ((* endif *))
+
+            \subsubsection{Runtime Analysis}
+            ((* set flat_runtime = flatten_struct(files_contents["run"]) *))
+            \begin{itemize}
+            ((* for cmd, runtime_contents in flat_runtime.items() *))
+                \item Command: \texttt{((( tex_escape(cmd) )))}
+                \item Monitor:
+                ((*- if "monitor" in runtime_contents.keys() *))
+                    \texttt{((( tex_escape(runtime_contents["monitor"]) )))}
+                ((*- else *))
+                    stdout
+                ((*- endif *))
+                \item Regexes:
+                ((* for regex_, results in runtime_contents["regexes"].items() *))
+                \begin{itemize}
+                    \item \texttt{((( tex_escape(regex_) )))}:
+                    \begin{itemize}
+                        \item Found occurrences: ((( len_(results) )))
+                        ((* if txt_show_all_regex_occurrences == "True" and len_(results) > 0 *))
+                        \item Occurences list:
+                        \begin{enumerate}
+                        ((* for result in results *))
+                            \item \texttt{((( tex_escape(result.replace("\n", "\\n")) )))}
+                        ((* endfor *))
+                        \end{enumerate}
+                        ((* endif *))
+                    \end{itemize}
+                \end{itemize}
+                ((*- endfor -*))
+            ((* endfor *))
+            \end{itemize}
 
         ((* endif *))
     ((* else *))
@@ -162,6 +242,8 @@ breaklines=true
     \includepdf[pages={1-},scale=1.0]{((( junit_xml_to_html(test_results["junitxml"], student_no) )))}
 ((* endif *))
 
+((* if tex_columns != "1" *))
 \end{multicols}
+((* endif *))
 
 \end{document}

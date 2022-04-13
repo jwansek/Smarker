@@ -4,5 +4,5 @@ rm 100301654.zip
 pdflatex 100301654_report.tex
 rm -v *.log
 rm -v *.aux
-rm -v *.tex
+# rm -v *.tex
 rm -v *_test_report.pdf

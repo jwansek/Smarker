@@ -25,7 +25,9 @@ class Application(tk.Tk):
         """
         return "%s %s" % (arg_1, arg_2)
 
+    # add
     def add(self, num1:int, num2:int) -> int:
+        # add
         """Adds two numbers together and returns the output
 
         Args:

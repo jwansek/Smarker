@@ -1,0 +1,3 @@
+[submodule "python-latex-highlighting"]
+	path = python-latex-highlighting
+	url = git@github.com:olivierverdier/python-latex-highlighting.git
