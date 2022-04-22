@@ -192,7 +192,7 @@ class Reflect:
         test_results = {}
         test_results["pytest_report"] = ""
         
-        with open("pytest_template.jinja2", "r") as f:
+        with open(os.path.join(os.path.split(__file__)[0], "pytest_template.jinja2"), "r") as f:
             jinja_template = jinja2.Template(f.read())
 
         for filename, filestests in tests.items():

@@ -16,7 +16,7 @@ latex_jinja_env = jinja2.Environment(
 	line_comment_prefix = '%#',
 	trim_blocks = True,
 	autoescape = False,
-	loader = jinja2.FileSystemLoader(os.path.abspath('templates'))
+	loader = jinja2.FileSystemLoader(os.path.abspath(os.path.join(os.path.split(__file__)[0], "templates")))
 )
 
 @dataclass

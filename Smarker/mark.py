@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import jinja_helpers
 import configparser
 import misc_classes
+import subprocess
 import argparse
 import tempfile
 import zipfile
@@ -28,8 +29,8 @@ def main(**kwargs):
         elif kwargs["format"] == "json":
             strout = json.dumps(output, indent = 4)
         else:
-            fp = os.path.join("templates", "%s.jinja2" % kwargs["format"])
-            if kwargs["format"] == "tex":
+            fp = os.path.join(os.path.split(__file__)[0], "templates", "%s.jinja2" % kwargs["format"])
+            if kwargs["format"] in ("tex", "pdf"):
                 jinja_template = misc_classes.latex_jinja_env.get_template("tex.jinja2")
             else:
                 with open(fp, "r") as f:
@@ -48,11 +49,22 @@ def main(**kwargs):
         with open(output_file, "w") as f:
             f.write(strout)
 
+        if kwargs["format"] == "pdf":
+            os.environ["TEXINPUTS"] = os.path.join(os.path.split(__file__)[0], "python-latex-highlighting") + ":"
+
+            os.rename(output_file, os.path.splitext(output_file)[0] + ".tex")
+            output_file = os.path.splitext(output_file)[0] + ".tex"
+            subprocess.run(["pdflatex", output_file])
+
+            os.remove(os.path.splitext(output_file)[0] + ".tex")
+            os.remove(os.path.splitext(output_file)[0] + ".log")
+            os.remove(os.path.splitext(output_file)[0] + ".aux")
+
         # input("\n\n[tempdir: %s] Press any key to close..." % tempdir)
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
-    config.read("smarker.conf")
+    config.read(os.path.join(os.path.split(__file__)[0], "smarker.conf"))
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -71,7 +83,7 @@ if __name__ == "__main__":
         "-f", "--format",
         help = "Output format type",
         type = str,
-        choices = ["yaml", "json"] + [os.path.splitext(f)[0] for f in os.listdir("templates")],
+        choices = ["yaml", "json", "pdf"] + [os.path.splitext(f)[0] for f in os.listdir(os.path.join(os.path.split(__file__)[0], "templates"))],
         default = "txt"
     )
     parser.add_argument(

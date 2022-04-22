@@ -111,11 +111,14 @@ def tex_escape(text):
     # print(text, regex.sub(lambda match: conv[match.group()], text))
     return regex.sub(lambda match: conv[match.group()], text)
 
+def get_python_latex_highlight_sty_path():
+    return os.path.join(os.path.split(__file__)[0], "python-latex-highlighting", "pythonhighlight")
+
 def _get_helpers():
     import reflect
     import os
 
-    r = reflect.Reflect(os.getcwd())
+    r = reflect.Reflect(os.path.split(__file__)[0])
     r.import_module("jinja_helpers")
     return {k: v[0] for k, v in r.get_functions("jinja_helpers").items()}
 
@@ -126,7 +129,9 @@ if __name__ == "__main__":
 
     # print(flatten_struct(flatten_struct(init_struct)["example.py"]["functions"]))
 
-    print(get_required_num_args("aFunctionThatIsntThere(2)"))
+    print(get_python_latex_highlight_sty_path())
+
+    # print(_get_helpers())
 
     
     
