@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import argparse
 import tempfile
 import zipfile
 import shutil
@@ -18,6 +19,19 @@ latex_jinja_env = jinja2.Environment(
 	autoescape = False,
 	loader = jinja2.FileSystemLoader(os.path.abspath(os.path.join(os.path.split(__file__)[0], "templates")))
 )
+
+class EnvDefault(argparse.Action):
+    def __init__(self, envvar, required=True, default=None, **kwargs):
+        if not default and envvar:
+            if envvar in os.environ:
+                default = os.environ[envvar]
+        if required and default:
+            required = False
+        super(EnvDefault, self).__init__(default=default, required=required, 
+                                         **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
 
 @dataclass
 class ExtractZipToTempDir(tempfile.TemporaryDirectory):

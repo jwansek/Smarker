@@ -69,18 +69,24 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-a", "--assessment",
+        action = misc_classes.EnvDefault,
+        envvar = "assessment",
         help = "Path to an assessment .yml file",
         type = os.path.abspath,
         required = True
     )
     parser.add_argument(
         "-s", "--submission",
+        action = misc_classes.EnvDefault,
+        envvar = "submission",
         help = "Path to a zip of a student's code",
         type = os.path.abspath,
         required = True
     )
     parser.add_argument(
         "-f", "--format",
+        action = misc_classes.EnvDefault,
+        envvar = "format",
         help = "Output format type",
         type = str,
         choices = ["yaml", "json", "pdf"] + [os.path.splitext(f)[0] for f in os.listdir(os.path.join(os.path.split(__file__)[0], "templates"))],
@@ -88,6 +94,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-o", "--out",
+        action = misc_classes.EnvDefault,
+        envvar = "out",
         help = "Path to write the output to, or, by default write to stdout. 'auto' automatically generates a file name.",
         default = "stdout",
     )
@@ -96,6 +104,8 @@ if __name__ == "__main__":
         for option in config.options(section):
             parser.add_argument(
                 "--%s_%s" % (section, option),
+                action = misc_classes.EnvDefault,
+                envvar = "--%s_%s" % (section, option),
                 default = config.get(section, option),
                 help = "Optional argument inherited from config file. Read smarker.conf for details."
             )
