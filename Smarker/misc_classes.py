@@ -20,6 +20,7 @@ latex_jinja_env = jinja2.Environment(
 	loader = jinja2.FileSystemLoader(os.path.abspath(os.path.join(os.path.split(__file__)[0], "templates")))
 )
 
+# https://stackoverflow.com/questions/10551117/setting-options-from-environment-variables-when-using-argparse
 class EnvDefault(argparse.Action):
     def __init__(self, envvar, required=True, default=None, **kwargs):
         if not default and envvar:

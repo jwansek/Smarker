@@ -7,5 +7,6 @@ RUN apt-get install -y python3-pip python3-dev build-essential texlive-base wkht
 COPY ./Smarker /Smarker
 WORKDIR /Smarker
 RUN pip3 install -r requirements.txt
-ENTRYPOINT ["python3"]
+RUN ln -s /usr/bin/python3 /usr/bin/python
+ENTRYPOINT ["python"]
 CMD ["smarker.py"]

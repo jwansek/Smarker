@@ -72,7 +72,7 @@ if __name__ == "__main__":
         action = misc_classes.EnvDefault,
         envvar = "assessment",
         help = "Path to an assessment .yml file",
-        type = os.path.abspath,
+        # type = os.path.abspath,
         required = True
     )
     parser.add_argument(
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         action = misc_classes.EnvDefault,
         envvar = "submission",
         help = "Path to a zip of a student's code",
-        type = os.path.abspath,
+        # type = os.path.abspath,
         required = True
     )
     parser.add_argument(
@@ -109,6 +109,12 @@ if __name__ == "__main__":
                 default = config.get(section, option),
                 help = "Optional argument inherited from config file. Read smarker.conf for details."
             )
+
+    try:
+        for dependency in os.environ["SMARKERDEPS"].split(","):
+            subprocess.run(["pip", "install", dependency])
+    except KeyError:
+        pass
 
     args = vars(parser.parse_args())
     main(**args)
