@@ -8,6 +8,7 @@ import subprocess
 import importlib
 import traceback
 import tempfile
+import database
 import inspect
 import pkgutil
 import shutil
@@ -61,6 +62,9 @@ class Reflect:
             "comments": self.__format_doc(inspect.getcomments(self.imported_modules[module_name])), 
             "doc": self.__format_doc(inspect.getdoc(self.imported_modules[module_name]))
         }
+
+    def get_module_source(self, module_name):
+        return inspect.getsource(self.imported_modules[module_name]).rstrip()
 
     def get_classes(self, module_name):
         """Gets the classes in a given module. The module must be imported first.
@@ -237,6 +241,7 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
     out = assessment_struct
     out["student_no"] = student_no
     tests_to_run = {}
+    files_sources = {}
 
     try:
         produced_files = assessment_struct["produced_files"]
@@ -246,6 +251,8 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
     for i, required_file in enumerate(assessment_struct["files"], 0):
         required_file = list(required_file.keys())[0]
         module_name = os.path.splitext(required_file)[0]
+
+        files_sources[required_file] = None
 
         if module_name in present_module_names:
             out["files"][i][required_file]["present"] = True
@@ -269,6 +276,7 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
         required_files_features = assessment_struct["files"][i][required_file]
         out["files"][i][required_file]["has_exception"] = False
         out["files"][i][required_file]["documentation"] = reflection.get_module_doc(module_name)
+        files_sources[required_file] = reflection.get_module_source(module_name)
         if "classes" in required_files_features.keys():
 
             present_classes = reflection.get_classes(module_name)
@@ -374,6 +382,12 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
 
     out["test_results"] = reflection.run_tests(tests_to_run, configuration["out"] == "stdout" and configuration["format"] in ["text", "txt"])
     out["class_tree"] = reflection.get_class_tree()
+
+    with database.SmarkerDatabase(
+        configuration["mysql_host"], configuration["mysql_user"], configuration["mysql_passwd"], 
+        "Smarker", int(configuration["mysql_port"])) as db:
+        
+        db.add_submission(student_no, out["name"], out, files_sources)
     return out
 
 class MonitoredFileNotInProducedFilesException(Exception):

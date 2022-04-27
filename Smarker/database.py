@@ -140,11 +140,11 @@ class SmarkerDatabase:
     def add_submission(self, student_id, assessment_name, report_yaml, files):
         with self.__connection.cursor() as cursor:
             cursor.execute("INSERT INTO submissions (student_no, assessment_name, report_yaml) VALUES (%s, %s, %s);", (
-                student_id, assessment_name, report_yaml
+                student_id, assessment_name, yaml.dump(report_yaml)
             ))
             submission_id = cursor.lastrowid
 
-            for file_name, file_contents in files:
+            for file_name, file_contents in files.items():
                 cursor.execute("""
                 INSERT INTO submitted_files
                 (submission_id, file_id, file_text)
@@ -152,4 +152,4 @@ class SmarkerDatabase:
                 """, (
                     submission_id, file_name, file_contents
                 ))
-
+        self.__connection.commit()
