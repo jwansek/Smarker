@@ -1,4 +1,4 @@
-name: CMP-5021B-19-20
+name: example
 files:
     - example.py:
         classes:
@@ -56,4 +56,3 @@ produced_files:
 dependencies:
     files:
         - ../wsData.txt
-        - ../IncludeDirectory

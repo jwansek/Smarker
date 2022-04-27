@@ -8,3 +8,4 @@ pytest
 junit2html
 pdfkit
 lxml
+pymysql

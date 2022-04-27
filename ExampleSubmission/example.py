@@ -1,11 +1,11 @@
 # Eden Attenborough
 # 12-01-21
 
-import tkinter as tk
+#import tkinter as tk
 from dataclasses import dataclass
 import sys
 
-class Application(tk.Tk):
+class Application:
     """An example class, which implements a GUI by inheriting from tkinter.Tk
     """
     def __init__(self, *args, **kwargs):

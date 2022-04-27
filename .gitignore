@@ -1,6 +1,8 @@
+out/
 *_report.*
 *.zip
 smarker.conf
+*.aux
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
