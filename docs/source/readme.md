@@ -27,6 +27,6 @@ Runtime Analysis
 
 File with an exception
 
-![pytest](https://smarker.eda.gay/_static/pytest_error.png)
+![pytest](https://smarker.eda.gay/_static/readme_pytest.png)
 
 Using pytest
