@@ -1,10 +1,28 @@
 import misc_classes
 import configparser
 import jinja_helpers
+import pycode_similar
+import operator
 import database
 import argparse
+import tempfile
 import yaml
 import os
+
+def generate_plagarism_report(codes):
+    for file_name, codes in codes.items():
+        with tempfile.TemporaryDirectory() as td:
+            un_added_student_nos = {i[0] for i in codes.keys()}
+            # print(un_added_student_nos)
+            for k, v in sorted(codes.keys(), key=operator.itemgetter(0, 1), reverse=True):
+                if k in un_added_student_nos:
+                    with open(os.path.join(td, "%i.py" % k), "w") as f:
+                        f.write(codes[(k, v)])
+                    
+                    # print("Written %s at %s" % (k, v))
+                    un_added_student_nos.remove(k)
+            input("%s..." % td)
+            print(pycode_similar.detect(os.listdir(td)))
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
@@ -45,6 +63,13 @@ if __name__ == "__main__":
         action = misc_classes.EnvDefault,
         envvar = "create_student",
         help = "Add a student in the form e.g. 123456789,Eden,Attenborough,E.Attenborough@uea.ac.uk",
+        required = False
+    )
+    parser.add_argument(
+        "-p", "--plagarism_report",
+        action = misc_classes.EnvDefault,
+        envvar = "plagarism_report",
+        help = "Generate a plagarism report for the given assessment",
         required = False
     )
     
@@ -90,6 +115,9 @@ if __name__ == "__main__":
             db.add_student(int(sid), name, email)
 
             print("Added student %s" % name)
+
+        if args["plagarism_report"] is not None:
+            generate_plagarism_report(db.get_submission_codes(args["plagarism_report"]))
 
         
         # print(db.get_assessment_yaml("CMP-4009B-2020-A2"))

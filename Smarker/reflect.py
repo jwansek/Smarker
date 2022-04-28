@@ -376,7 +376,7 @@ def gen_reflection_report(client_code_path, assessment_struct, student_no, confi
                                 lines = lines.replace("\r", "")
                                 matches = {}
                                 for regex_ in contents["regexes"]:
-                                    matches[regex_] = re.findall(regex_, lines)
+                                    matches[regex_] = re.findall(str(regex_), lines)
                                 required_files_features["run"][j][cmd]["regexes"] = matches
                                 required_files_features["run"][j][cmd]["full_output"] = lines
 

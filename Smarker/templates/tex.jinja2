@@ -57,7 +57,7 @@ breaklines=true
 \newcommand{\errortext}[1]{\textcolor{red}{\textbf{#1}}}
 
 \author{((( student_no )))}
-\title{((( name ))) - Automatic marking report}
+\title{((( tex_escape(name) ))) - Automatic marking report}
 
 \begin{document}
 
@@ -70,16 +70,19 @@ breaklines=true
 
 \begin{figure}[H]
     \centering
-    \begin{forest}
+    ((# \begin{forest}
         ((( recurse_class_tree_forest(class_tree)|indent(8, False) )))
-    \end{forest}
+    \end{forest} #))
+    \begin{lstlisting}
+((( recurse_class_tree_text(class_tree) )))
+    \end{lstlisting}
     \caption{Class inheritance tree}
 \end{figure}
 
 \section{File Analysis}
 ((* set flat_files = flatten_struct(files) *))
 ((* for filename, files_contents in flat_files.items() *))
-    \subsection{\texttt{((( filename )))}}
+    \subsection{\texttt{((( tex_escape(filename) )))}}
     ((* if files_contents["present"] *))
         ((* if files_contents["has_exception"] *))
             \errortext{File cannot be run - has compile time exception.}
@@ -87,9 +90,9 @@ breaklines=true
             Please note that this file cannot be analysed or have tests preformed upon it-
             this can lead to the whole test suite failing if another module imports this.
                     
-            \textbf{Exception Type:} \texttt{((( files_contents["exception"]["type"] )))}
+            \textbf{Exception Type:} \texttt{((( tex_escape(files_contents["exception"]["type"]) )))}
             
-            \textbf{Exception String:} \texttt{((( files_contents["exception"]["str"] )))}
+            \textbf{Exception String:} \texttt{((( tex_escape(files_contents["exception"]["str"]) )))}
 
             \textbf{Full Traceback:}
 

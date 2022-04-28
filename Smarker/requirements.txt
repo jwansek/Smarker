@@ -9,3 +9,4 @@ junit2html
 pdfkit
 lxml
 pymysql
+pycode_similar

@@ -111,6 +111,8 @@ class SmarkerDatabase:
 
     def remove_assessment(self, name):
         with self.__connection.cursor() as cursor:
+            cursor.execute("DELETE FROM submitted_files WHERE submission_id IN (SELECT submission_id FROM submissions WHERE assessment_name = %s);", (name, ))
+            cursor.execute("DELETE FROM submissions WHERE assessment_name = %s;", (name, ))
             cursor.execute("DELETE FROM assessment_file WHERE assessment_name = %s;", (name, ))
             cursor.execute("DELETE FROM assessment WHERE assessment_name = %s;", (name, ))
         self.__connection.commit()
@@ -153,3 +155,35 @@ class SmarkerDatabase:
                     submission_id, file_name, file_contents
                 ))
         self.__connection.commit()
+
+    def get_submission_codes(self, assessment_name):
+        out = {}
+        with self.__connection.cursor() as cursor:
+            cursor.execute("SELECT file_id, file_name FROM assessment_file WHERE assessment_name = %s;", (assessment_name, ))
+            for file_id, file_name in cursor.fetchall():
+                out[file_name] = {}
+
+                cursor.execute("""
+                SELECT 
+                    submitted_files.file_text, 
+                    submissions.student_no, 
+                    submissions.submission_dt 
+                FROM submitted_files 
+                INNER JOIN submissions 
+                ON submissions.submission_id = submitted_files.submission_id 
+                WHERE submitted_files.file_id = %s;
+                """, (file_id, ))
+
+                for code, student_no, dt in cursor.fetchall():
+                    out[file_name][(int(student_no), dt)] = code
+        return out
+
+    def get_most_recent_submission_report(self, assessment_name):
+        with self.__connection.cursor() as cursor:
+            cursor.execute("SELECT MAX(submission_id), student_no FROM submissions WHERE assessment_name = %s GROUP BY student_no;", (assessment_name, ))
+            return [(int(i[0]), int(i[1]), yaml.safe_load(i[2])) for i in cursor.fetchall()]
+                
+
+if __name__ == "__main__":
+    with SmarkerDatabase(host = "vps.eda.gay", user="root", passwd=input("Input password: "), db="Smarker", port=3307) as db:
+        print(db.get_most_recent_submission_report("simple_assessment"))
