@@ -1,5 +1,4 @@
-Welcome to Smarker's documentation!
-===================================
+.. mdinclude:: readme.md
 
 Setting up
 ----------
