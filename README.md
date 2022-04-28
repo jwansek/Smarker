@@ -5,4 +5,4 @@ Is is an expandable system, which produces reports about a student's code in man
 formats.
 
 - [Read the documentation](http://smarker.eda.gay/)
-- [Get the source code](https://github.com/jwansek/Smarker) [Mirror](https://git.eda.gay/Smarker/files.html)
+- [Get the source code](https://github.com/jwansek/Smarker) - [Mirror](https://git.eda.gay/Smarker/files.html)
