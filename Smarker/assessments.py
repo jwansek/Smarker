@@ -24,7 +24,7 @@ def generate_plagarism_report(codes):
             input("%s..." % td)
             print(pycode_similar.detect(os.listdir(td)))
 
-if __name__ == "__main__":
+def getparser():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.split(__file__)[0], "smarker.conf"))
 
@@ -81,7 +81,10 @@ if __name__ == "__main__":
             default = config.get("mysql", option),
             help = "Optional argument inherited from config file. Read smarker.conf for details."
         )
+    return parser
 
+if __name__ == "__main__":
+    parser = getparser()
     args = vars(parser.parse_args())
 
     with database.SmarkerDatabase(

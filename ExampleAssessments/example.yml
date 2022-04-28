@@ -56,3 +56,5 @@ produced_files:
 dependencies:
     files:
         - ../wsData.txt
+    libraries:
+        - matplotlib

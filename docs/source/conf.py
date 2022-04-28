@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..", "Smarker")))
+sys.path.insert(0, os.path.abspath(os.path.join("..", "..", "ExampleAssessments")))
 # print(os.listdir(os.path.abspath(os.path.join("..", "..", "Smarker"))))
 
 
@@ -32,7 +33,8 @@ extensions = [
     'sphinx.ext.autodoc', 
     'sphinx.ext.coverage', 
     'sphinx.ext.napoleon', 
-    "sphinx_mdinclude"
+    "sphinx_mdinclude",
+    'sphinxarg.ext'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

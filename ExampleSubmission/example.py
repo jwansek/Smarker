@@ -76,5 +76,5 @@ def make_multilines():
     print("True\n\nFalse")
 
 if __name__ == "__main__":
-    print(hello_world(int(sys.argv[1])) + "\n\nowo" )
+    print(hello_world(int(sys.argv[1])))
     make_multilines()

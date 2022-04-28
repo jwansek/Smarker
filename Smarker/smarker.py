@@ -73,7 +73,7 @@ def main(**kwargs):
 
         # input("\n\n[tempdir: %s] Press any key to close..." % tempdir)
 
-if __name__ == "__main__":
+def getparser():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.split(__file__)[0], "smarker.conf"))
 
@@ -126,6 +126,11 @@ if __name__ == "__main__":
             subprocess.run(["pip", "install", dependency])
     except KeyError:
         pass
+
+    return parser
+
+if __name__ == "__main__":
+    parser = getparser()    
 
     args = vars(parser.parse_args())
     main(**args)
