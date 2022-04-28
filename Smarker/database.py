@@ -4,6 +4,12 @@ import yaml
 
 @dataclass
 class SmarkerDatabase:
+    """Class for interfacing with a MariaDB database. Expected to be used with a `with`
+    clause. Database will be built if it isn't found.
+
+    Returns:
+        SmarkerDatabase: Database object
+    """
     host:str 
     user:str 
     passwd:str 
@@ -98,6 +104,14 @@ class SmarkerDatabase:
             return cursor.fetchall()
 
     def create_assessment(self, name, yaml_f, num_enrolled, files):
+        """Add an assessment configuration to the database
+
+        Args:
+            name (str): The name of the assessment, which will be used from now on
+            yaml_f (str): The yaml configuration as a string
+            num_enrolled (int): (Optional) the number of students enrolled
+            files (list): List of strings, the files required for this assessment
+        """
         with self.__connection.cursor() as cursor:
             cursor.execute("INSERT INTO assessment VALUES (%s, %s, %s);", (
                 name, yaml_f, num_enrolled
@@ -110,6 +124,12 @@ class SmarkerDatabase:
         self.__connection.commit()
 
     def remove_assessment(self, name):
+        """Removes an assessment. Submissions associated with the assessment will be removed
+        too.
+
+        Args:
+            name (str): The name of the assessment to remove
+        """
         with self.__connection.cursor() as cursor:
             cursor.execute("DELETE FROM submitted_files WHERE submission_id IN (SELECT submission_id FROM submissions WHERE assessment_name = %s);", (name, ))
             cursor.execute("DELETE FROM submissions WHERE assessment_name = %s;", (name, ))
@@ -118,6 +138,11 @@ class SmarkerDatabase:
         self.__connection.commit()
 
     def get_assessments(self):
+        """Get assessments in the database.
+
+        Returns:
+            tuple - a tuple of tuples in the format ((assessment_name, number_enrolled, number_of_files), )
+        """
         with self.__connection.cursor() as cursor:
             cursor.execute("""
             SELECT assessment.assessment_name, num_enrolled, COUNT(assessment.assessment_name) 
@@ -129,17 +154,40 @@ class SmarkerDatabase:
             return cursor.fetchall()
     
     def get_assessment_yaml(self, name):
+        """Returns the configuration file for a given assessment name.
+
+        Args:
+            name (str): The name of the assessment to get
+
+        Returns:
+            dict: Configuration yaml struct
+        """
         with self.__connection.cursor() as cursor:
             cursor.execute("SELECT yaml_path FROM assessment WHERE assessment_name = %s;", (name, ))
         return yaml.safe_load(cursor.fetchone()[0])
 
     def add_student(self, student_id, name, email):
+        """Adds a student to the database.
+
+        Args:
+            student_id (int): Student Number
+            name (str): Student's name
+            email (str): Student's email
+        """
         with self.__connection.cursor() as cursor:
             cursor.execute("INSERT INTO students VALUES (%s, %s, %s);",
             (student_id, name, email))
         self.__connection.commit()
 
     def add_submission(self, student_id, assessment_name, report_yaml, files):
+        """Adds a submission to the database.
+
+        Args:
+            student_id (int): Student Number
+            assessment_name (str): Assessment name
+            report_yaml (dict): Produced yaml report as a dict
+            files (dict): Student's code in the format {"<file name>": "<file contents>"}
+        """
         with self.__connection.cursor() as cursor:
             cursor.execute("INSERT INTO submissions (student_no, assessment_name, report_yaml) VALUES (%s, %s, %s);", (
                 student_id, assessment_name, yaml.dump(report_yaml)
