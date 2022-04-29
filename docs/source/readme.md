@@ -15,6 +15,8 @@ formats.
 - Generate plagarism reports
 - Isolate code in a docker container for security
 
+### Screenshots
+
 ![Function Analysis](https://smarker.eda.gay/_static/readme_functionanalysis.png)
 
 Function Analysis

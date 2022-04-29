@@ -204,34 +204,44 @@ class SmarkerDatabase:
                 ))
         self.__connection.commit()
 
-    def get_submission_codes(self, assessment_name):
+    def get_submission_codes(self, submission_ids):
         out = {}
         with self.__connection.cursor() as cursor:
-            cursor.execute("SELECT file_id, file_name FROM assessment_file WHERE assessment_name = %s;", (assessment_name, ))
-            for file_id, file_name in cursor.fetchall():
-                out[file_name] = {}
-
+            for submission_id in submission_ids:
                 cursor.execute("""
                 SELECT 
                     submitted_files.file_text, 
-                    submissions.student_no, 
-                    submissions.submission_dt 
+                    submitted_files.file_id, 
+                    assessment_file.file_name, 
+                    submissions.student_no 
                 FROM submitted_files 
+                INNER JOIN assessment_file 
+                ON submitted_files.file_id = assessment_file.file_id 
                 INNER JOIN submissions 
-                ON submissions.submission_id = submitted_files.submission_id 
-                WHERE submitted_files.file_id = %s;
-                """, (file_id, ))
-
-                for code, student_no, dt in cursor.fetchall():
-                    out[file_name][(int(student_no), dt)] = code
+                ON submissions.submission_id = submitted_files.submission_id
+                WHERE submitted_files.submission_id = %s;
+                """, (submission_id))
+                
+                for file_contents, id_, file_name, student_no in cursor.fetchall():
+                    if file_contents is not None:
+                        try:
+                            out[file_name].append((int(student_no), file_contents))
+                        except KeyError:
+                            out[file_name] = [(int(student_no), file_contents)]
         return out
 
-    def get_most_recent_submission_report(self, assessment_name):
+    def get_submissions(self, assessment_name):
         with self.__connection.cursor() as cursor:
-            cursor.execute("SELECT MAX(submission_id), student_no FROM submissions WHERE assessment_name = %s GROUP BY student_no;", (assessment_name, ))
-            return [(int(i[0]), int(i[1]), yaml.safe_load(i[2])) for i in cursor.fetchall()]
-                
+            cursor.execute("SELECT student_no, submission_dt, report_yaml, submission_id FROM submissions WHERE assessment_name = %s;", (assessment_name, ))
+            return {(int(i[0]), i[1]): (yaml.safe_load(i[2]), int(i[3])) for i in cursor.fetchall()}
+
+    def get_assessments_required_files(self, assessment_name):
+        with self.__connection.cursor() as cursor:       
+            cursor.execute("SELECT file_name FROM assessment_file WHERE assessment_name = %s;", (assessment_name, ))   
+            return [i[0] for i in cursor.fetchall()]
 
 if __name__ == "__main__":
     with SmarkerDatabase(host = "vps.eda.gay", user="root", passwd=input("Input password: "), db="Smarker", port=3307) as db:
-        print(db.get_most_recent_submission_report("simple_assessment"))
+        # print(db.get_assessments_required_files("example"))
+        import json
+        print(json.dumps(db.get_submission_codes((24, 21)), indent = 4))

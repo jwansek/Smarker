@@ -1,28 +1,82 @@
+from dataclasses import dataclass
 import misc_classes
 import configparser
 import jinja_helpers
 import pycode_similar
+import subprocess
 import operator
 import database
 import argparse
 import tempfile
 import yaml
+import json
 import os
+import re
 
-def generate_plagarism_report(codes):
-    for file_name, codes in codes.items():
+@dataclass
+class SimilarityMetric:
+    code_text_1:str
+    code_text_2:str
+    id_1:int
+    id_2:int
+
+    def __post_init__(self):
         with tempfile.TemporaryDirectory() as td:
-            un_added_student_nos = {i[0] for i in codes.keys()}
-            # print(un_added_student_nos)
-            for k, v in sorted(codes.keys(), key=operator.itemgetter(0, 1), reverse=True):
-                if k in un_added_student_nos:
-                    with open(os.path.join(td, "%i.py" % k), "w") as f:
-                        f.write(codes[(k, v)])
+            with open(os.path.join(td, "%i.py" % self.id_1), "w") as f:
+                f.write(self.code_text_1)
+
+            with open(os.path.join(td, "%i.py" % self.id_2), "w") as f:
+                f.write(self.code_text_2)
+
+            proc = subprocess.Popen(["pycode_similar", "-p", "0", os.path.join(td, "%i.py" % self.id_1), os.path.join(td, "%i.py" % self.id_2)], stdout = subprocess.PIPE)
+            self.details = ""
+            while True:
+                line = proc.stdout.readline()
+                if not line:
+                    break
+                self.details += line.decode()
+
+    def get_similarity(self):
+        return float(re.findall(r"\d+\.\d+\s", self.details)[0])
+
+
+def generate_plagarism_report(assessment_name, db):
+    required_files = db.get_assessments_required_files(assessment_name)
+    submission_ids_to_get = set()
+    assessments = db.get_submissions(assessment_name)
+    un_added_student_nos = {i[0] for i in assessments.keys()}
+    for id_, dt in sorted(assessments.keys(), key=operator.itemgetter(0, 1), reverse=True):
+        if id_ in un_added_student_nos:
+            files = jinja_helpers.flatten_struct(assessments[(id_, dt)][0]["files"])
+
+            for file_name in required_files:
+                if files[file_name]["present"]:
+                    if (not files[file_name]["has_exception"]):
+                        submission_ids_to_get.add(assessments[(id_, dt)][1])
+
+            un_added_student_nos.remove(id_)
+    
+    codes = db.get_submission_codes(submission_ids_to_get)
+    for file_name, submissions in codes.items():
+        with tempfile.TemporaryDirectory() as td:
+            print(file_name, len(submissions))
+            for student_id, code in submissions:
+                with open(os.path.join(td, "%i.py" % student_id), "w") as f:
+                    f.write(code)
+
+            cmd = ["pycode_similar"] + [os.path.join(td, f) for f in os.listdir(td)]
+            print(" ".join(cmd))
+            proc = subprocess.Popen(cmd, stdout = subprocess.PIPE)
+            stdout = ""
+            while True:
+                line = proc.stdout.readline()
+                if not line:
+                    break
+                stdout += line.decode()
+
+            print(stdout)
+            input("skfhsk")
                     
-                    # print("Written %s at %s" % (k, v))
-                    un_added_student_nos.remove(k)
-            input("%s..." % td)
-            print(pycode_similar.detect(os.listdir(td)))
 
 def getparser():
     config = configparser.ConfigParser()
@@ -120,7 +174,7 @@ if __name__ == "__main__":
             print("Added student %s" % name)
 
         if args["plagarism_report"] is not None:
-            generate_plagarism_report(db.get_submission_codes(args["plagarism_report"]))
+            generate_plagarism_report(args["plagarism_report"], db)
 
         
         # print(db.get_assessment_yaml("CMP-4009B-2020-A2"))
