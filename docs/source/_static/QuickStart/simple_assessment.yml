@@ -1,0 +1,12 @@
+name: simple_assessment
+files:
+    - euclid.py:
+        functions:
+            - gcd(2)
+        tests:
+            - |
+                assert euclid.gcd(8,12) == 4
+        run:
+            - python euclid.py:
+                regexes:
+                    - ^4

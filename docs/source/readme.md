@@ -32,3 +32,7 @@ File with an exception
 ![pytest](https://smarker.eda.gay/_static/readme_pytest.png)
 
 Using pytest
+
+![matrix](https://smarker.eda.gay/_static/readme_matrix.png)
+
+Plagarism and collusion detection matrix

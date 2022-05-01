@@ -1,0 +1,60 @@
+{
+    "files": [
+        {
+            "euclid.py": {
+                "functions": [
+                    {
+                        "gcd(2)": {
+                            "present": true,
+                            "documentation": {
+                                "comments": "None",
+                                "doc": "Docstring gcd"
+                            },
+                            "arguments": "(p, q)",
+                            "minimum_arguments": 2,
+                            "source_code": "def gcd(p,q):\n    \"\"\"Docstring gcd\"\"\"\n    if p < q:\n        (p,q) = (q,p)\n    if(p%q) == 0:\n        return q\n    else:\n        return (gcd(q, p % q)) # recursion taking place"
+                        }
+                    }
+                ],
+                "run": [
+                    {
+                        "python euclid.py": {
+                            "regexes": {
+                                "^4": [
+                                    "4"
+                                ]
+                            },
+                            "full_output": "4\n"
+                        }
+                    }
+                ],
+                "tests": [
+                    "assert euclid.gcd(8,12) == 4\n"
+                ],
+                "present": true,
+                "has_exception": false,
+                "documentation": {
+                    "comments": "None",
+                    "doc": "None"
+                }
+            }
+        }
+    ],
+    "name": "simple_assessment",
+    "student_no": "123456790",
+    "test_results": {
+        "pytest_report": "============================= test session starts ==============================\nplatform linux -- Python 3.10.4, pytest-7.1.1, pluggy-1.0.0 -- /usr/bin/python3\ncachedir: .pytest_cache\nrootdir: /tmp/tmpjzy020i4/simple_submission_3\ncollecting ... collected 1 item\n\n../../../../../../tmp/tmpjzy020i4/simple_submission_3/test_euclid.py::test_1 PASSED [100%]\n\n--------------- generated xml file: /tmp/tmpyu0qypji/report.xml ----------------\n============================== 1 passed in 0.01s ===============================\n",
+        "junitxml": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"0.019\" timestamp=\"2022-05-01T15:03:57.143881\" hostname=\"thonkpad2\"><testcase classname=\"test_euclid\" name=\"test_1\" time=\"0.001\" /></testsuite></testsuites>",
+        "meta": {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "0",
+            "tests": "1",
+            "time": "0.019",
+            "timestamp": "2022-05-01T15:03:57.143881",
+            "hostname": "thonkpad2"
+        }
+    },
+    "class_tree": {}
+}

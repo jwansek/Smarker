@@ -1,5 +1,7 @@
 .. mdinclude:: readme.md
 
+Read the :ref:`quickstart`.
+
 Setting up
 ----------
 
@@ -26,6 +28,8 @@ Please note that the ``-o`` flag is required for rendering to PDFs.
 
 ``assessments.py`` contains many useful arguments for interacting with the database:
 
+Also see :ref:`assessments`
+
 .. argparse::
    :module: assessments
    :func: getparser
@@ -37,11 +41,13 @@ Please note that the ``-o`` flag is required for rendering to PDFs.
    
    reflect.rst
    database.rst
+   assessments.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Other Pages:
 
+   quickstart.rst
    configfile.rst
    docker.rst
    assessmentyaml.rst

@@ -3,6 +3,7 @@ out/
 *.zip
 smarker.conf
 *.aux
+*.pickle
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

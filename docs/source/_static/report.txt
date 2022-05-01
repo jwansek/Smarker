@@ -1,0 +1,9 @@
+euclid.py
+        2  ...       1
+2  100.00  ...   94.74
+3  100.00  ...   94.74
+4   63.16  ...   57.89
+1   94.74  ...  100.00
+
+[4 rows x 4 columns]
+Written report to /Smarker/plagarism_report_details.pickle

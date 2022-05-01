@@ -42,3 +42,9 @@ To list assessments in the database using docker:
 .. code-block:: bash
     
     sudo docker run -it --entrypoint python --rm smarker assessments.py --list yes
+
+.. code-block:: bash
+
+    touch out/report.pickle && sudo docker run -v "$(pwd)/out/report.pickle":/Smarker/plagarism_report_details.pickle -it --entrypoint python --rm smarker assessments.py --plagarism_report example
+
+If a file doesn't exist before it's passed through as a volume in docker, it will be created automatically as a *directory*- this causes issues if the docker image produces a file so we make a blank file first.
