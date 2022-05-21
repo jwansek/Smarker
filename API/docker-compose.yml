@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+    smarker:
+        build:
+            context: ..
+            dockerfile: Dockerfile
+        image: smarker
+    smarker-api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: smarker-api
+        ports:
+            - "6970:6970"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./.uploads/:/API/.uploads/
+            - /tmp/:/tmp/
+        environment:
+            - UPLOADS_DIR=<your full uploads directory path here>
+        depends_on:
+            - smarker

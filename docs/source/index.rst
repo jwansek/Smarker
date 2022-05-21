@@ -11,6 +11,9 @@ Setting up
 * Add an assessment yaml- :ref:`assessmentyaml`.
 * Enroll students: ``python3 Smarker/assessments.py -s 123456789,Eden,Attenborough,E.Attenborough@uea.ac.uk``
 
+*Smarker* can be used inside docker, see :ref:`docker` (recommended for sandboxing client code)
+and through an API- see :ref:`api`.
+
 ``smarker.py`` usage
 ********************
 
@@ -37,20 +40,28 @@ Also see :ref:`assessments`
 
 .. toctree::
    :maxdepth: 2
+   :caption: Setting up:
+
+   quickstart.rst
+   configfile.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Docker:
+
+   docker.rst
+   assessmentyaml.rst
+   api.rst
+
+.. toctree::
+   :maxdepth: 3
    :caption: Modules:
    
    reflect.rst
    database.rst
    assessments.rst
+   api.rst
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Other Pages:
-
-   quickstart.rst
-   configfile.rst
-   docker.rst
-   assessmentyaml.rst
 
 Indices and tables
 ==================

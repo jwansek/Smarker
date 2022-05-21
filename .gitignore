@@ -1,7 +1,8 @@
+API/.uploads/*.*
 out/
 *_report.*
 *.zip
-smarker.conf
+#smarker.conf
 *.aux
 *.pickle
 

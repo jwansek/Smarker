@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import pymysql
+import secrets
 import yaml
 
 @dataclass
@@ -54,7 +55,8 @@ class SmarkerDatabase:
             CREATE TABLE students(
                 student_no VARCHAR(10) PRIMARY KEY NOT NULL,
                 name TEXT NOT NULL,
-                email VARCHAR(50) NOT NULL
+                email VARCHAR(50) NOT NULL,
+                apikey VARCHAR(64) NOT NULL
             );
             """)
             cursor.execute("""
@@ -175,8 +177,8 @@ class SmarkerDatabase:
             email (str): Student's email
         """
         with self.__connection.cursor() as cursor:
-            cursor.execute("INSERT INTO students VALUES (%s, %s, %s);",
-            (student_id, name, email))
+            cursor.execute("INSERT INTO students VALUES (%s, %s, %s, %s);",
+            (student_id, name, email, secrets.token_urlsafe(32)))
         self.__connection.commit()
 
     def add_submission(self, student_id, assessment_name, report_yaml, files):
@@ -198,9 +200,9 @@ class SmarkerDatabase:
                 cursor.execute("""
                 INSERT INTO submitted_files
                 (submission_id, file_id, file_text)
-                VALUES (%s, (SELECT file_id FROM assessment_file WHERE file_name = %s), %s);
+                VALUES (%s, (SELECT file_id FROM assessment_file WHERE file_name = %s AND assessment_name = %s), %s);
                 """, (
-                    submission_id, file_name, file_contents
+                    submission_id, file_name, assessment_name, file_contents
                 ))
         self.__connection.commit()
 
@@ -239,6 +241,11 @@ class SmarkerDatabase:
         with self.__connection.cursor() as cursor:       
             cursor.execute("SELECT file_name FROM assessment_file WHERE assessment_name = %s;", (assessment_name, ))   
             return [i[0] for i in cursor.fetchall()]
+
+    def valid_apikey(self, key):
+        with self.__connection.cursor() as cursor:
+            cursor.execute("SELECT apikey FROM students WHERE apikey = %s", (key, ))
+            return key in [i[0] for i in cursor.fetchall()]
 
 if __name__ == "__main__":
     with SmarkerDatabase(host = "vps.eda.gay", user="root", passwd=input("Input password: "), db="Smarker", port=3307) as db:

@@ -58,3 +58,4 @@ dependencies:
         - ../wsData.txt
     libraries:
         - matplotlib
+        - opencv-python-headless
