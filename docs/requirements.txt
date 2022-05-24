@@ -1,3 +1,5 @@
 Sphinx
 sphinx_mdinclude
 sphinx-argparse
+sphinx_toolbox
+markupsafe

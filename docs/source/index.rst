@@ -62,6 +62,9 @@ Also see :ref:`assessments`
    assessments.rst
    api.rst
 
+.. sidebar-links::
+   :caption: Source code:   
+   :github: 
 
 Indices and tables
 ==================
@@ -69,3 +72,5 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+* `Source Code <https://git.eda.gay/Smarker/files.html>`_
+* `License <https://git.eda.gay/Smarker/file/LICENSE.html>`_

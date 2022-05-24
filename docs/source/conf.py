@@ -35,8 +35,12 @@ extensions = [
     'sphinx.ext.coverage', 
     'sphinx.ext.napoleon', 
     "sphinx_mdinclude",
-    'sphinxarg.ext'
+    'sphinxarg.ext',
+    "sphinx_toolbox.sidebar_links",
+    'sphinx_toolbox.github'
 ]
+github_username = 'jwansek'
+github_repository = 'Smarker'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
