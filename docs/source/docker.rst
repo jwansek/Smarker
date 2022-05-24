@@ -11,6 +11,13 @@ Running the system in docker has many advantages:
 
 * Makes the system be able to be used in Windows- Smarker has been tested in docker for windows using WSL for the backend
 
+.. warning::
+
+    If using windows, I recommend using the mingw shell since powershell is bad at dealing with relative file paths. With mingw you can simply use ``$(pwd)``.
+
+    However, if you do, be sure to **escape file paths properly**; since, for example, ``/tmp/`` will automatically be expanded to ``C:/Users/<user>/AppData/Local/Temp/``. This causes issues when 
+    setting up docker volumes. You can prefix your commands with ``MSYS_NO_PATHCONV=1`` (`see the documentation <https://web.archive.org/web/20201112005258/http://www.mingw.org/wiki/Posix_path_conversion>`_).
+
 Using docker
 ------------
 

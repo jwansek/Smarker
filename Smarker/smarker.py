@@ -57,7 +57,7 @@ def main(**kwargs):
             output_file = os.path.splitext(output_file)[0] + ".tex"
             with open(output_file, "w") as f:
                 f.write(strout)
-            subprocess.run(["pdflatex", output_file])
+            subprocess.run(["pdflatex", "-interaction=nonstopmode", output_file])
             subprocess.run(["mv", os.path.splitext(os.path.split(output_file)[-1])[0] + ".pdf", os.path.split(output_file)[0]])
 
             if os.path.exists(os.path.splitext(output_file)[0] + ".tex"):

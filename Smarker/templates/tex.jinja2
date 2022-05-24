@@ -203,6 +203,7 @@ breaklines=true
 
             \subsubsection{Runtime Analysis}
             ((* set flat_runtime = flatten_struct(files_contents["run"]) *))
+            ((* if len_(flat_runtime) > 0 *))
             \begin{itemize}
             ((* for cmd, runtime_contents in flat_runtime.items() *))
                 \item Command: \texttt{((( tex_escape(cmd) )))}
@@ -231,6 +232,7 @@ breaklines=true
                 ((*- endfor -*))
             ((* endfor *))
             \end{itemize}
+            ((* endif *))
 
         ((* endif *))
     ((* else *))

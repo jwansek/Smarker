@@ -16,6 +16,10 @@ Classes
 .. autoclass:: assessments.SimilarityMetric
     :members:
 
+.. autoclass:: assessments.StringSimilarity
+    :inherited-members:
+    :members:
+
 Functions
 *********
 

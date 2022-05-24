@@ -11,3 +11,4 @@ pycode_similar
 pandas
 matplotlib
 numpy
+python-Levenshtein

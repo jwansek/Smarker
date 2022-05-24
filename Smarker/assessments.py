@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from matplotlib import pyplot as plt
+import Levenshtein
 import numpy as np
 import misc_classes
 import configparser
@@ -21,7 +22,7 @@ import re
 class SimilarityMetric:
     """Abstract class for getting a metric of similariry between two python objects.
     By default it uses pycode_similar as a metric, but this can be changed by overriding
-    ``get_similarity()``. There is also the additional attribute ``details`` for getting
+    :meth:`get_similarity()`. There is also the additional attribute ``details`` for getting
     a breakdown of similarity.
     """
     code_text_1:str
@@ -52,6 +53,13 @@ class SimilarityMetric:
             float: A percentage similarity metric
         """
         return float(re.findall(r"\d+\.\d+\s", self.details)[0])
+
+class StringSimilarity(SimilarityMetric):
+    """Example class inheriting from :class:`SimilarityMetric`, using the levenshtein
+    distance as a metric of similarity.
+    """
+    def get_similarity(self):
+        return int((Levenshtein.ratio(self.code_text_1, self.code_text_2) * 100) * 10) / 10
 
 def visualise_matrix(dataframe:pd.DataFrame, file_name):
     """Visualize and draw a similarity matrix. Simply shows the figure,
@@ -85,7 +93,13 @@ def visualise_matrix(dataframe:pd.DataFrame, file_name):
                 ax.text(x = j, y = i, s = values[i, j], va = 'center', ha = 'center')
     
     plt.title(file_name)
+
+    out_path = os.path.realpath("%s_plagarism_report_matrix.png" % file_name)
+    plt.savefig(out_path)
+    print("Written image to %s" % out_path)
+
     plt.show()
+    
 
 
 def generate_plagarism_report(assessment_name, db:database.SmarkerDatabase):

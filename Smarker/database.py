@@ -72,7 +72,7 @@ class SmarkerDatabase:
                 student_no VARCHAR(10) NOT NULL,
                 assessment_name VARCHAR(30) NOT NULL,
                 submission_dt DATETIME NOT NULL default CURRENT_TIMESTAMP,
-                report_yaml TEXT NOT NULL,
+                report_yaml MEDIUMTEXT NOT NULL,
                 FOREIGN KEY (student_no) REFERENCES students(student_no),
                 FOREIGN KEY (assessment_name) REFERENCES assessment(assessment_name)
             );
